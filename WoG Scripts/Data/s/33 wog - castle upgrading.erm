@@ -30,6 +30,7 @@ ZVSE2
 !#DC(ITEMID_TOWN_HALLPIC)      = 158;
 
 !#DC(WOG_45_MINCOST)            = 5;
+!#DC(WOG_45_GOLDBONUS)       = 1000;
 
 !#DC(WOG_45_TOWNSCOUNT)        = 48;
 !#DC(WOG_45_ITEMCOUNT)         = 10;
@@ -38,30 +39,19 @@ ZVSE2
 
 ; ==================================================================================================
 
-; ============= GLOBAL VARIABLES ===================================================================
+; Store the upgraded monsters in the global variables for calculating the costs of upgrading dwellings later
+; This is necessary for compatiblity with mods modifying UN:T values
+; Must be executed earlier than any temparory UN:T modification
+!?FU(OnPreTownScreen)&999;
+!!re (monLvl:y)/0/6;
+  !!CA(CURRENT_TOWN):T?(townType:y);
+  !!UN:T(townType)/(monLvl)/1/?i^wog_45_upgMonLvl%(monLvl)^;
+!!en;
 
-!#VRi^wog_45_goldBonus^:S1000;          [Increased daily income with each upgrade]
-!#VRi^wog_45_goldCost^:S1000;           [The increased cost of gold for each upgrade (also used in the initial cost)]
-
-; ==================================================================================================
-
-; Modded by Archer30
-; Store the upgraded monsters and growth in arrays for calculating the costs of upgrading dwellings later
-; This is necessary for compatiblity with Week of Monsters (growth would be changed) and mods modifying UN:T values
-; Must be executed later than 11 wog - neutral town
-!?FU(OnAfterErmInited);
-!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);  
-!!FU&(wogOption)<>(TRUE):E;
-
-!!re i/(TOWN_FIRST)/(TOWN_LAST_WOG);
-  !!FU(NewIntArray):P16/?i^wog_45_upgMonList_%i^/(M_STORED);
-
-  !!re j/(MON_MIN_LEVEL)/(MON_MAX_LEVEL);
-    !!UN:Ti/j/(TRUE)/?(upgMon:y);
-    !!MA:G(upgMon)/?(growth:y);
-    !!VR(index:y):Sj *2;
-    !!SN:Vi^wog_45_upgMonList_%i^/(index)/(upgMon)/(growth);
-  !!en;
+; Release variables
+!?FU(OnCloseTownScreen)&999;
+!!re (monLvl:y)/0/6;
+  !!VRi^wog_45_upgMonLvl%(monLvl)^:S0;
 !!en;
 
 ; Function to get the special resource requirement of a town
@@ -98,8 +88,8 @@ ZVSE2
 
 ; ==================================================================================================
 
-!?FU(OnTownMouseClick); 
-!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);  
+!?FU(OnTownMouseClick);
+!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;
 
 ; получение параметров клика
@@ -109,12 +99,12 @@ ZVSE2
 !!FU(WOG_45_IncreaseCreatureGrowth)&(itemId)=(ITEMID_TOWN_TOWNPIC):P;
 !!FU(WOG_45_IncreaseTownGoldIncome)&(itemId)=(ITEMID_TOWN_HALLPIC):P;
 
-!?FU(OnTownMouseHint); 
-!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);  
+!?FU(OnTownMouseHint);
+!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;
 
 ; display hint text
-!!CM:I?(itemId:y);  
+!!CM:I?(itemId:y);
 !!SN&(itemId)=(ITEMID_TOWN_TOWNPIC):T^wog.45.hintTownPic^/?(hint:z);
 !!SN&(itemId)=(ITEMID_TOWN_HALLPIC):T^wog.45.hintHallPic^/?(hint);
 !!CM|(itemId)=(ITEMID_TOWN_TOWNPIC)/(itemId)=(ITEMID_TOWN_HALLPIC):M(hint);
@@ -123,7 +113,7 @@ ZVSE2
 
 !?FU(WOG_45_IncreaseCreatureGrowth);
 ; получение необходимых параметров города
-!!CA(CURRENT_TOWN):O?(ownerId:y) U?(townId:y) T?(townType:y); 
+!!CA(CURRENT_TOWN):O?(ownerId:y) U?(townId:y) T?(townType:y);
 
 ; выход если не наш город
 !!FU(WOG_GameMgr_GetPlayer_Me):P?(meId:y);
@@ -131,15 +121,15 @@ ZVSE2
 
 ; вычисляем ссылку на город в массиве бонусов
 !!VR(ptrAlreadyBuilt:y):S(townId) *(WOG_45_ITEMCOUNT);
-!!VR(monBonusItemId:y):S(ptrAlreadyBuilt) +2; 
+!!VR(monBonusItemId:y):S(ptrAlreadyBuilt) +2;
 
 ; инициализируем главные переменные
-!#VA(monType[8]:y) (monCount[8]:y) (monLevel[8]:y);
-!#VA(msgType[8]:y) (msgMonType[8]:y);
+!#VA(monType[7]:y) (monCount[7]:y) (monLevel[7]:y);
+!#VA(msgType[7]:y) (msgMonType[7]:y);
 
 ; инициализируем массивы дефолнтными значениями
-!!VR(msgType[0]):C(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON); 
-!!VR(msgMonType[0]):C(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON); 
+!!VR(msgType[0]):C(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON);
+!!VR(msgMonType[0]):C(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON)/(NO_MON);
 
 ; инициализируем дополнительные переменные
 !!VR(counter:y):S0;
@@ -149,47 +139,33 @@ ZVSE2
 !!re i/(MON_MIN_LEVEL)/(MON_MAX_LEVEL)/1;
   ; проверяем построено ли улучшенное жилище
   !!VR(buildId):+1;
-  !!CA0/(townId):B3/(buildId); 
+  !!CA0/(townId):B3/(buildId);
 
-  !!if&(TRUE); 
+  !!if&(TRUE);
     ; формируем указатели
-    !!VR(monTypePtr:y):S(@monType) +(counter);      
-    !!VR(monCountPtr:y):S(@monCount) +(counter);  
-    !!VR(monLevelPtr:y):S(@monLevel) +(counter); 
-    !!VR(msgTypePtr:y):S(@msgType) +(counter);  
-    !!VR(msgMonTypePtr:y):S(@msgMonType) +(counter); 
+    !!VR(monTypePtr:y):S(@monType) +(counter);
+    !!VR(monCountPtr:y):S(@monCount) +(counter);
+    !!VR(monLevelPtr:y):S(@monLevel) +(counter);
+    !!VR(msgTypePtr:y):S(@msgType) +(counter);
+    !!VR(msgMonTypePtr:y):S(@msgMonType) +(counter);
 
     ; получаем тип нанимаемого монстра в городе
     !!FU(WOG_Town_GetCreatureID):P(townType)/i/1/?y(monTypePtr);
     ; сохраняем уровень monLevel (через него будем вытаскивать значение результата из IF:N)
-    !!VRy(monLevelPtr):Si; 
+    !!VRy(monLevelPtr):Si;
 
     ; получаем правильную ссылку на массив и считываем бонус кол-ва
-    !!VR(prtMonBonusItem):S(monBonusItemId) +i;  
-    !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(prtMonBonusItem)/?y(monCountPtr); 
+    !!VR(prtMonBonusItem):S(monBonusItemId) +i;
+    !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(prtMonBonusItem)/?y(monCountPtr);
 
     ; формируем тип картинки, и кладём его в указатель на массив картинок
     !!VRy(msgTypePtr):S(PIC_TYPE_MONSTER) |(PIC_TYPE_FLAG_DISPLAY_ZEROS);
     ; формируем номер монстра (и его кол-во), и кладём его в указатель на тип монстра
-    !!VRy(msgMonTypePtr):Sy(monCountPtr) Sd<<16 |y(monTypePtr);  
+    !!VRy(msgMonTypePtr):Sy(monCountPtr) Sd<<16 |y(monTypePtr);
 
     ; увеличиваем счетчик существующих элементов
-    !!VR(counter):+1; 
+    !!VR(counter):+1;
   !!en;
-!!en;
-
-; Set up 8th slot defined by mods - doesn't support Pikemen
-!!VR(monID:y):S(NO_MON);
-!!FU(WOG_45_SetUp8thSlot):P(townId)/?(monType[counter]);
-
-!!if&(monType[counter])>0;
-  !!VR(monID):S(monType[counter]);
-  !!VR(monLevel[counter]):S7;
-  !!VR(prtMonBonusItem):S(monBonusItemId) +(monLevel[counter]);
-  !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(prtMonBonusItem)/?(monCount[counter]); 
-  !!VR(msgType[counter]):S(PIC_TYPE_MONSTER) |(PIC_TYPE_FLAG_DISPLAY_ZEROS);
-  !!VR(msgMonType[counter]):S65536 *(monCount[counter]) +(monType[counter]);
-  !!VR(counter):+1;
 !!en;
 
 ; улучшенных жилищ нет - выходим
@@ -198,7 +174,7 @@ ZVSE2
   !!FU:E;
 !!en;
 
-; конфигурируем сообщение 1 
+; конфигурируем сообщение 1
 !!IF:N(msgType[0])/(msgMonType[0])/
       (msgType[1])/(msgMonType[1])/
       (msgType[2])/(msgMonType[2])/
@@ -206,7 +182,7 @@ ZVSE2
       (msgType[4])/(msgMonType[4])/
       (msgType[5])/(msgMonType[5])/
       (msgType[6])/(msgMonType[6])/
-      (msgType[7])/(msgMonType[7]);
+      (NO_PIC_TYPE)/(NULL);
 
 ; Configure message
 !!VR(requirementMsg:z):S^^;
@@ -222,7 +198,7 @@ ZVSE2
 
 !!SN:T^wog.45.mainCreaturesMsg^/?(message:z)/^requirementMsg^/(requirementMsg);
 
-; показать сообщение 
+; показать сообщение
 !!IF:N(MSG_TYPE_CHOOSE_PIC_OR_CANCEL)/^%(message)^/?(chosenPicture:y);
 ; выходим, если нажата ОТМЕНА
 !!FU&(chosenPicture)=-1:E;
@@ -230,102 +206,69 @@ ZVSE2
 ; вытаскиваем какой юнит был выбран в сообщении
 !!VR(chosenId:y):S(@monLevel) +(chosenPicture);
 !!VR(monLvl:y):Sy(chosenId);
+!!FU|(monLvl)<(MON_MIN_LEVEL)/(monLvl)>(MON_MAX_LEVEL):E;
 
 ; опять получаем id существа этого уровня в замке
-; For 8th creature, (monID) has been stored earlier
-!!FU(WOG_Town_GetCreatureID)&(monLvl)<=(MON_MAX_LEVEL):P(townType)/(monLvl)/1/?(monID:y);
-
+!!FU(WOG_Town_GetCreatureID):P(townType)/(monLvl)/1/?(monID:y);
 ; опять получаем кол-во монстров
 ; получаем правильную ссылку на массив и считываем бонус кол-ва
-!!VR(monBonusItemId):+(monLvl);  
+!!VR(monBonusItemId):+(monLvl);
 !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(monBonusItemId)/?(monNum:y);
 
-; величина бонуса в зависимости от уровня существа
-; Fix compatibility with Week of Monsters by using arrays - Archer
-*!MA:G(monID)/?(growth:y);
-!!VR(growthIndex:y):S(monLvl) *2 +1;
-!!SN:Mi^wog_45_upgMonList_%(townType)^/(growthIndex)/?(growth:y);
-!!VR(growth):+1 :2 F1/10;
+; величина бонуса в зависимости от существа
+!!MA:G(monID)/?(growth:y);
+!!VR(growth):S(growth); // Double the growth
 
 ; JackSlater - define buildTimesCounter
 !!VR(buildTimesCounter:y):+(monNum) :(growth) +1;
 
-; получаем стоимость существа
-; Fix mods with UN:T hacks compatibility by using arrays - Archer
+; get the price of creature
+; Fix mods with UN:T hacks compatibility by using global variables - Archer
 *!FU(WOG_Town_GetCreatureID):P(townType)/(monLvl)/0/?(trueMonID:y);
-!!VR(trueMonIndex:y):S(monLvl) *2;
-!!SN:Mi^wog_45_upgMonList_%(townType)^/(trueMonIndex)/?(trueMonID:y);
-!!FU(WOG_Creature_GetCost):P(trueMonID)/?(wood:y)/?(mercury:y)/?(ore:y)/?(sulfur:y)/?(crystal:y)/?(gems:y)/?(gold:y);
+!!VR(trueMonID:y):Si^wog_45_upgMonLvl%(monLvl)^;
+!!FU(WOG_Creature_GetCost):P(trueMonID)/d/d/d/d/d/d/?(gold:y);
 
-; обязательны простые ресурсы для постройки (5 дерева, 5 руды)
-*!VR(wood)&(wood)<(WOG_45_MINCOST):S(WOG_45_MINCOST);
-*!VR(ore)&(ore)<(WOG_45_MINCOST):S(WOG_45_MINCOST);
-; JackSlater tweak: more times upgrade - higher the cost
-!!VR(wood)&(wood)<(WOG_45_MINCOST):S(WOG_45_MINCOST) *(buildTimesCounter);
-!!VR(ore)&(ore)<(WOG_45_MINCOST):S(WOG_45_MINCOST) *(buildTimesCounter);
+; JackSlater - get the price of unupgraded dwelling
+; ids: 30=lvl 1; 31=lvl 2; 32=lvl 3; 33=lvl 4, 34=lvl 5, 35=lvl 6, 36=lvl 7
+!!VR(buildingId:y):S30 +(monLvl); // from 0 to 6
+!!FU(WOG_Town_Building_ResourceCost):P(townType)/(buildingId:y)/?y20/?y21/?y22/?y23/?y24/?y25/?y26;
 
-; создаём величину золота для улучшения 
-*!VR(gold):*(growth) *(WOG_45_MINCOST);
-; JackSlater tweak: more times upgrade - higher the cost
+; JackSlater - get the price of upgraded dwelling
+; ids: 37=lvl 1; 38=lvl 2; 39=lvl 3; 40=lvl 4, 41=lvl 5, 42=lvl 6, 43=lvl 7
+!!VR(buildingId:y):S37 +(monLvl); // from 0 to 6
+!!FU(WOG_Town_Building_ResourceCost):P(townType)/(buildingId:y)/?y30/?y31/?y32/?y33/?y34/?y35/?y36;
+
+*!if&^eighth_on^;
+  *!FU(eighth_Get8thBasicGrowth):P(townType)/?(basicGrowth:y);
+  *!IF:L^basicGrowth = %(basicGrowth)^;
+  *!FU(eighth_Get8thGrowth):P(townId)/?(growth:y)/?(castleBonus:y)/?(grailBonus:y);
+  *!IF:L^growth = %(growth)^;
+
+  *!if&i^eighth_8thDwell_%(townId)^=(TRUE);
+
+  *!en;
+*!en;
+
+; JackSlater - more times upgrade - higher the cost
+!!VR(wood:y):+y20 +y30 *(buildTimesCounter);
+!!VR(mercury:y):+y21 +y31 *(buildTimesCounter);
+!!VR(ore:y):+y22 +y32 *(buildTimesCounter);
+!!VR(sulfur:y):+y23 +y33 *(buildTimesCounter);
+!!VR(crystal:y):+y24 +y34 *(buildTimesCounter);
+!!VR(gems:y):+y25 +y35 *(buildTimesCounter);
+*!VR(gold:y):+y26 +y36 *(buildTimesCounter);
 !!VR(gold):*(growth) *(WOG_45_MINCOST) *(buildTimesCounter);
+!!VR(gold)::100 *100; // for rounding ???
 
-; проверяем опцию Половинная Cтоимость Существ
-!!if&i^timerWeekDay^=7;
-  !!UN:P(WOG_OPT_CREATURES_HALF_PRICE_ON_7TH_DAY)/?(wogOptionHalfPrice:y);
-
-  !!if&(wogOptionHalfPrice)=(TRUE);
-    !!VR(gold):*2; if Sunday
-  !!en;
-!!en;
-
-!!VR(gold)::100 *100;
-
-; дефолтная картинка спец.ресурса
-!!VR(typeSpecResPicId:y):S(NO_PIC_TYPE);
-!!VR(typeSpecResPicCount:y):S(NULL);
-!!VR(specResId:y):S(NULL);
-
-; если спец.ресурс существует
-!!if&(mercury)>(NULL);
-  !!VR(typeSpecResPicId):S(PIC_TYPE_RES_MERCURY);
-  !!VR(typeSpecResPicCount):S(mercury) * (growth) * (WOG_45_MINCOST);
-  !!VR(specResId):S(RES_MERCURY);
-!!el&(sulfur)>(NULL);
-  !!VR(typeSpecResPicId):S(PIC_TYPE_RES_SULFUR);
-  !!VR(typeSpecResPicCount):S(sulfur) * (growth) * (WOG_45_MINCOST);
-  !!VR(specResId):S(RES_SULFUR);
-!!el&(crystal)>(NULL);
-  !!VR(typeSpecResPicId):S(PIC_TYPE_RES_CRYSTAL);
-  !!VR(typeSpecResPicCount):S(crystal) * (growth) * (WOG_45_MINCOST);
-  !!VR(specResId):S(RES_CRYSTAL);
-!!el&(gems)>(NULL);
-  !!VR(typeSpecResPicId):S(PIC_TYPE_RES_GEMS);
-  !!VR(typeSpecResPicCount):S(gems) * (growth) * (WOG_45_MINCOST);
-  !!VR(specResId):S(RES_GEMS);
-!!en;
-
-; Standarise the cost for Level 7 as they are usually very different. Price would be 10k at least, price over 10k is multiplied by 2/3 - Archer
-*!if&(monLvl)=(MON_MAX_LEVEL);
-  *!VR(basGold:y):S(WOG_45_MINCOST) *2000;
-  *!VR(extGold:y):S(gold) -(basGold) F0/(INT_MAX) :3 *2 :100 *100;
-  *!VR(gold)&(extGold)>0:S(basGold) +(extGold);
-*!en;
-
-; Standarise rare resources if applicable
-*!if&(typeSpecResPicCount)>(NULL);
-  *!VR(maxTypeSpecRes:y):S(WOG_45_MINCOST) *2;
-  *!VR(typeSpecResPicCount):F(WOG_45_MINCOST)/(maxTypeSpecRes);
-*!en;
-
-; конфигурируем сообщение 2 
+; конфигурируем сообщение 2
 !!IF:N(PIC_TYPE_MONSTER)/(monID)/
       (PIC_TYPE_RES_WOOD)/(wood)/
+      (PIC_TYPE_RES_MERCURY)/(mercury)/
       (PIC_TYPE_RES_ORE)/(ore)/
-      (PIC_TYPE_RES_GOLD)/(gold)/
-      (typeSpecResPicId)/(typeSpecResPicCount)/
-      (NO_PIC_TYPE)/(NULL)/
-      (NO_PIC_TYPE)/(NULL)/
-      (NO_PIC_TYPE)/(NULL);
+      (PIC_TYPE_RES_SULFUR)/(sulfur)/
+      (PIC_TYPE_RES_CRYSTAL)/(crystal)/
+      (PIC_TYPE_RES_GEMS)/(gems)/
+      (PIC_TYPE_RES_GOLD)/(gold);
 
 ; Memory patch (Resour82.def -> Resource.def)
 !!UN:C5199571/(UNC_UINT32)/?(saveMemory1:y) C5199571/(UNC_UINT32)/(PTR_RESOURCE_DEF);
@@ -334,16 +277,10 @@ ZVSE2
 ; Check if meeting the costs requirement for specific dwelling  if did not build this turn
 !!if&(requirementMsg)=^^;
   ; хватает ли у игрока простых ресурсов и золота
-  !!FU(WOG_Player_CheckEnoughResources):P?(boolHasResources:y)/(ownerId)/(wood)/(NULL)/(ore)/(NULL)/(NULL)/(NULL)/(gold);
-
-  ; хватает ли у игрока спец.ресурса
-  !!if&(specResId)>(NULL);  
-    !!OW:R(ownerId)/(specResId)/?(temp:y); 
-    !!VR(boolHasResources)&(temp)<(typeSpecResPicCount):S(FALSE);
-  !!en;
+  !!FU(WOG_Player_CheckEnoughResources):P?(boolHasResources:y)/(ownerId)/(wood)/(mercury)/(ore)/(sulfur)/(crystal)/(gems)/(gold);
 
   ; если не хватает - сообщаем и выходим
-  !!if&(boolHasResources)<>(TRUE); 
+  !!if&(boolHasResources)<>(TRUE);
     ; not enough resources
     !!VR(requirementMsg):S^%T(wog.45.noResToUpgradeUpgDwelling)^;
     !!VR(msgDlgType):S(MSG_TYPE_MES);
@@ -360,12 +297,10 @@ ZVSE2
 !!FU&(result)<>(TRUE):E;
 
 ; забрать базовые ресурсы у игрока
-!!FU(WOG_Player_RemoveResources):P(ownerId)/(wood)/(NULL)/(ore)/(NULL)/(NULL)/(NULL)/(gold);
-; забрать спец.ресурс у игрока
-!!OW&(specResId)>(NULL):R(ownerId)/(specResId)/d-(typeSpecResPicCount);
+!!FU(WOG_Player_RemoveResources):P(ownerId)/(wood)/(mercury)/(ore)/(sulfur)/(crystal)/(gems)/(gold);
 
 ; добавить бонус существ
-!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(monBonusItemId)/d(growth); 
+!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(monBonusItemId)/d(growth);
 
 ; установить, что в этом городе что-то уже строилось
 !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(ptrAlreadyBuilt)/(TRUE);
@@ -383,18 +318,18 @@ ZVSE2
 
 !?FU(WOG_45_IncreaseTownGoldIncome);
 ; get town owner
-!!CA(CURRENT_TOWN):O?(ownerId:y) U?(townId:y); 
+!!CA(CURRENT_TOWN):O?(ownerId:y) U?(townId:y);
 
 ; exit if not my town
 !!FU(WOG_GameMgr_GetPlayer_Me):P?(meId:y);
 !!FU&(ownerId)<>(meId):E;
 
 ; if City Hall is built
-!!CA0/(townId):B3/12; 
+!!CA0/(townId):B3/12;
 
 !!if&-1;
   !!IF:M^%T(wog.45.noCityHall)^;
-  !!FU:E;  
+  !!FU:E;
 !!en;
 
 ; get town array items id
@@ -403,46 +338,46 @@ ZVSE2
 
 ; check town gold bonus
 !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(prtGoldBonusItem)/?(goldBonus:y);
-!!VR(needRes:y):S(goldBonus) :i^wog_45_goldBonus^ +(WOG_45_MINCOST);
-!!VR(needRes)&(needRes)<(WOG_45_MINCOST):S(WOG_45_MINCOST);
-!!VR(needGold:y):S(needRes) *i^wog_45_goldCost^;
+
+; JackSlater - define buildTimesCounter
+!!VR(buildTimesCounter:y):+(goldBonus) :(WOG_45_GOLDBONUS) +1;
+
+; JackSlater - more times upgrade - higher the cost
+!!VR(needRes:y):S(WOG_45_MINCOST) *(buildTimesCounter);
+!!VR(needGold:y):S(WOG_45_MINCOST) *(WOG_45_GOLDBONUS) *(buildTimesCounter);
 
 ; configure message
 ; Disable the requirement of special resouces but add in special resource requirements - Archer
-; The special resources would be Mithril when applicable. If mithril is not enabled, it would be the rare resource required for the level 7 creature plus Wood and Ore
+; The special resources would be Mithril when applicable. If negative, it would be the rare resource required for the level 7 creature plus Wood and Ore
+*!IF:N(PIC_TYPE_RES_WOOD)/(needRes)/
+      (PIC_TYPE_RES_MERCURY)/(needRes)/
+      (PIC_TYPE_RES_ORE)/(needRes)/
+      (PIC_TYPE_RES_SULFUR)/(needRes)/
+      (PIC_TYPE_RES_CRYSTAL)/(needRes)/
+      (PIC_TYPE_RES_GEMS)/(needRes)/
+      (PIC_TYPE_RES_GOLD)/(needGold)/
+      (NO_PIC_TYPE)/(NULL);
 !!CA(CURRENT_TOWN):T?(townType:y);
 !!FU(WOG_45_GetTownSpecialResource):P(townType)/?(specResId:y);
 !!VR(typeSpecResPicId:y):S(specResId);
 
-; Set up the price
-!!VR(needRareRes[4]:y):C0/0/0/0;
-
+; Requires Wood and Ore if Mithril is not enabled
 !!if&(specResId)=(RES_MITHRIL);
   !!VR(extRes1PicId:y):S(NO_PIC_TYPE);
   !!VR(extRes2PicId:y):S(NO_PIC_TYPE);
-  !!VR(needNormRes:y):S(NULL);
+  !!VR(extNeedRes:y):S(NULL);
   !!VR(needMithril:y):S(needRes);
 !!el;
   !!VR(extRes1PicId):S(RES_WOOD);
   !!VR(extRes2PicId):S(RES_ORE);
-  !!VR(needNormRes:y):S(needRes);
+  !!VR(extNeedRes:y):S(needRes);
   !!VR(needMithril:y):S(NULL);
-
-  !!if&(specResId)=(RES_MERCURY);
-    !!VR(needRareRes[0]):S(needRes);
-  !!el&(specResId)=(RES_SULFUR);
-    !!VR(needRareRes[1]):S(needRes);
-  !!el&(specResId)=(RES_CRYSTAL);
-    !!VR(needRareRes[2]):S(needRes);
-  !!el&(specResId)=(RES_GEMS);
-    !!VR(needRareRes[3]):S(needRes);
-  !!en;
 !!en;
 
 !!IF:N(PIC_TYPE_RES_GOLD)/(needGold)/
       (typeSpecResPicId)/(needRes)/
-      (extRes1PicId)/(needNormRes)/
-      (extRes2PicId)/(needNormRes)/
+      (extRes1PicId)/(extNeedRes)/
+      (extRes2PicId)/(extNeedRes)/
       (NO_PIC_TYPE)/(NULL)/
       (NO_PIC_TYPE)/(NULL)/
       (NO_PIC_TYPE)/(NULL)/
@@ -463,36 +398,36 @@ ZVSE2
   !!VR(msgDlgType):S(MSG_TYPE_MES);
 !!el;
   ; Change the requirement of resouces - Archer
-  !!FU(WOG_Player_CheckEnoughResources):P?(boolHasResources:y)/(ownerId)/(needNormRes)/(needRareRes[0])/(needNormRes)/(needRareRes[1])/(needRareRes[2])/(needRareRes[3])/(needGold)/(needMithril);
+  *!FU(WOG_Player_CheckEnoughResources):P?(boolHasResources:y)/(ownerId)/(needRes)/(needRes)/(needRes)/(needRes)/(needRes)/(needRes)/(needGold);
+  !!FU(WOG_Player_CheckEnoughResources):P?(boolHasResources:y)/(ownerId)/(extNeedRes)/(NULL)/(extNeedRes)/(NULL)/(NULL)/(NULL)/(needGold)/(needMithril);
 
   ; Additional check for town special resource if not mithril (put it here since it is easier to write than FU:P)
   !!if&(boolHasResources)/(specResId)<>(RES_MITHRIL);
-    !!OW:R(ownerId)/(specResId)/?(temp:y); 
+    !!OW:R(ownerId)/(specResId)/?(temp:y);
     !!VR(boolHasResources)&(temp)<(needRes):S(FALSE);
   !!en;
 
-  !!if&(boolHasResources)<>(TRUE);  
-    ; not enough resources and gold 
+  !!if&(boolHasResources)<>(TRUE);
+    ; not enough resources and gold
     !!VR(requirementMsg):S^%T(wog.45.noResToUpgradeGoldReserve)^;
     !!VR(msgDlgType):S(MSG_TYPE_MES);
   !!en;
 !!en;
 
 !!SN:T^wog.45.mainGoldReserveMsg^/?(message:z)/^requirementMsg^/(requirementMsg)/^gold^/(goldBonus);
-!!SN:T^wog.45.upgrGoldReserveMsg^/?(upgMessage:z)/^gold^/i^wog_45_goldBonus^;
-!!VR(message):+(upgMessage);
+!!VR(message):+^%T(wog.45.upgrGoldReserveMsg)^;
 
-; show message 
+; show message
 !!IF:N(msgDlgType)/(message)/?(result:y);
 ; memory patch (restore original code)
 !!UN:C5199571/(UNC_UINT32)/(saveMemory1) C5199620/(UNC_UINT32)/(saveMemory2);
 !!FU&(result)<>(TRUE):E;
 
 ; remove player resources
-!!FU(WOG_Player_RemoveResources):P(ownerId)/(needNormRes)/(needRareRes[0])/(needNormRes)/(needRareRes[1])/(needRareRes[2])/(needRareRes[3])/(needGold)/(needMithril);
+!!FU(WOG_Player_RemoveResources):P(ownerId)/(extNeedRes)/(NULL)/(extNeedRes)/(NULL)/(NULL)/(NULL)/(needGold)/(needMithril);
 
 ; add gold bonus to this town
-!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(prtGoldBonusItem)/di^wog_45_goldBonus^;
+!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(prtGoldBonusItem)/d+(WOG_45_GOLDBONUS);
 
 ; set what was already built today
 !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(ptrAlreadyBuilt)/(TRUE);
@@ -510,7 +445,7 @@ ZVSE2
 !#VA(townID:x);
 
 ; проверяем хозяина города: человек или ИИ
-!!CA0/(townID):O?(ownerId:y) T?(townType:y); 
+!!CA0/(townID):O?(ownerId:y) T?(townType:y);
 
 ; выход, если город ничей
 !!FU&(ownerId)=(NO_PLAYER):E;
@@ -524,7 +459,7 @@ ZVSE2
 ;   1-50     : золото
 ;  51-150    : существа
 ; 151 и выше : выход
-!!VR(chance:y):R0/1/1000; 
+!!VR(chance:y):R0/1/1000;
 !!FU&(chance)>150:E;
 
 ; получаем ссылку на массив города
@@ -539,11 +474,11 @@ ZVSE2
 
 !!if&(chance)<=50; выпала постройка Золотого Запаса
   ; проверяем построен ли Муниципалитет
-  !!CA0/(townID):B3/12; 
+  !!CA0/(townID):B3/12;
   !!FU&-1:E; не построен - выход
 
   !!VR(townArray):+1;
-  !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(townArray)/di^wog_45_goldBonus^;
+  !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(townArray)/d+(WOG_45_GOLDBONUS);
   !!FU:E; улучшили Золотой Запас, и вышли из триггера
 !!en;
 
@@ -552,7 +487,7 @@ ZVSE2
 
 ; проверяем построено ли улучшенное жилище этого монстра
 !!VR(buildID:y):S37 +(monLvl);
-!!CA0/(townID):B3/(buildID); 
+!!CA0/(townID):B3/(buildID);
 !!FU&-1:E; не построено - выход
 
 ; получаем id существа этого уровня в городе
@@ -563,20 +498,21 @@ ZVSE2
 
 ; величина бонуса в зависимости от уровня существа
 !!MA:G(monID)/?(growth:y);
-!!VR(growth):+1 :2; F1/10;
-!!VR(growth)&(growth)<1:S1;
-!!VR(growth)&(growth)>10:S10;
+!!VR(growth):S(growth); // Double the growth
 
 ; добавить бонус существ
-!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(townArray)/d(growth); 
+!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(townArray)/d(growth);
+
+
+; ============= Code from Daemon - visualisation ===================================================
 
 !?FU(WOG_CreateERMHook);
-!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);  
+!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);
 
 !!if&(wogOption);
-  !!SN:Ex1/1/6113249/(WOG_Town_GetCreatureIncomeText);
+  !!SN:Ex1/1/6113227/(WOG_Town_GetCreatureIncomeText);
   !!SN:Ex1/1/6029174/(WOG_Town_GetDwellingGrowth_GetTownId);
-  !!SN:Ex1/1/6029756/(WOG_Town_GetDwellingGrowth);
+  !!SN:Ex1/1/6029759/(WOG_Town_GetDwellingGrowth);
 !!en;
 
 
@@ -608,12 +544,10 @@ ZVSE2
 !!VR(result):Zs^wog_45_temp^;                                  [return result]
 !!VRs^wog_45_temp^:S^^;
 
+
 !?FU(WOG_Town_GetCreatureIncomeText);
 !!CM:I?(itemId:y);                                                                       [get dwelling level by clikcing item id]
 !!VR(creatureSpot:y):S(itemId:y) -164;
-!!if&(creatureSpot)>7;
-  !!VR(creatureSpot) -8;
-!!en;
 !!CA-1:U?(townId:y);
 
 !!VR(ptrMonstersBonus:y):S(townId:y) *(WOG_45_ITEMCOUNT) +2 +(creatureSpot:y);           [find place in the main array]
@@ -638,27 +572,28 @@ ZVSE2
 !?FU(WOG_Town_GetDwellingGrowth_GetTownId);
 !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(town:y) C(town)/1/?i^wog_45_town_id^;4/?(creatureSpot:y);      [Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/?(baseGrowth:y);]
 
+
 !?FU(WOG_Town_GetDwellingGrowth);                                                       [hook when game counts growth in the town]
 !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/8/4/?(creatureSpot:y);             [Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/?(baseGrowth:y);]
-
 !!if&(creatureSpot)>(MON_MAX_LEVEL)/(creatureSpot)<14;                                  [only for upg dweillings (values are 0-13)]
+  *!CA-1:U?(townId:y);
+
   !!VR(creatureSpot):-7;                                                                [determinate dwelling level]
 
   !!VR(ptrMonstersBonus:y):Si^wog_45_town_id^ *(WOG_45_ITEMCOUNT) +2 +(creatureSpot:y); [find place in the main array]
 
   !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(ptrMonstersBonus)/?(growth:y);
-
   !!if&(growth);
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ECX)/2/d(growth:y);                                   [increase summary growth after ALL bonuses been count before]
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/d(growth:y);                                   [increase summary growth after ALL bonuses been count before]
   !!en;
 !!en;
-
 !!VRi^wog_45_town_id^:S(NULL);
 
-!?FU(OnCalculateTownIncome); 
+
+!?FU(OnCalculateTownIncome);
 !#VA(town:x) (gold:x);
 
-!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);  
+!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;
 ; получаем величину бонуса Золотого Запаса в городе
 !!VR(prtGoldBonusItem:y):S(town) *(WOG_45_ITEMCOUNT) +1;
@@ -668,35 +603,34 @@ ZVSE2
 
 ; ============= RESET VARS =========================================================================
 
-!?FU(WOG_OnNewDay); 
-!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);  
+!?FU(WOG_OnNewDay);
+!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;
 
 ; проход по всем городам
 !!VR(stop:y):S(WOG_45_TOWNSCOUNT) *(WOG_45_ITEMCOUNT) - (WOG_45_ITEMCOUNT);
 
 ; reset already built var for all towns
-!!re (ptrAlreadyBuilt:y)/0/(stop)/(WOG_45_ITEMCOUNT); 
+!!re (ptrAlreadyBuilt:y)/0/(stop)/(WOG_45_ITEMCOUNT);
   !!SN:M(WOG_OPT_CASTLE_UPGRADING)/(ptrAlreadyBuilt)/(FALSE);
 !!en;
 
 ; AI building function
-!!VR(x:y):S-1;
+!!UN:U(OBJ_TOWN)/(ANY_OBJ)/?(townsCount:y);
+!!FU&(townsCount)<1:E;
 
-!!re i;
-  !!UN:U(OBJ_TOWN)/(ANY_OBJ)/-1/(x)/(y:y)/(z:y);
-  !!br&(x)<0;
+!!VR(townsCount)&(townsCount)>47:S47;
 
-  !!CA(x)/(y)/(z):U?(townId:y);
-  !!FU(WOG_45_AI_UpgradeTown):P(townId);
+!!re i/0/(townsCount)/1/-1;
+  !!FU(WOG_45_AI_UpgradeTown):Pi;
 !!en;
 
-!?FU(OnAfterErmInstructions); 
-!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);  
+!?FU(OnAfterErmInstructions);
+!!UN:P(WOG_OPT_CASTLE_UPGRADING)/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;
 
 !!VR(size:y):S(WOG_45_TOWNSCOUNT) *(WOG_45_ITEMCOUNT);
-!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(size)/(M_INT)/(M_STORED);
+!!SN:M(WOG_OPT_CASTLE_UPGRADING)/(size)/(M_INT)/(M_STORED)/?(townsArrayID:y);
 ; WOG_OPT_CASTLE_UPGRADING = id_array = 45
 ; items count (type int): 48 towns * 10 items = 480 items
 ; 0-9: first town

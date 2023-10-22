@@ -43,10 +43,11 @@ ZVSE2
 !!VR(replace:y):S(FALSE);
 
 ; check objects
-!!VR(replace)&(objType)=(OBJ_MARLETTO_TOWER):S(TRUE);
-!!VR(replace)&(objType)=(OBJ_RALLY_FLAG):S(TRUE);
-!!VR(replace)&(objType)=(OBJ_CREATURE_BANK)/(objSubtype)=2:S(TRUE);
-!!VR(replace)&(objType)=(OBJ_CREATURE_BANK)/(objSubtype)=3:S(TRUE);
+*!VR(replace)&(objType)=(OBJ_MARLETTO_TOWER):S(TRUE);
+*!VR(replace)&(objType)=(OBJ_RALLY_FLAG):S(TRUE);
+*!VR(replace)&(objType)=(OBJ_CREATURE_BANK)/(objSubtype)=2:S(TRUE);
+*!VR(replace)&(objType)=(OBJ_CREATURE_BANK)/(objSubtype)=3:S(TRUE);
+!!VR(replace)&(objType)=(OBJ_REFUGEE_CAMP):S(TRUE);
 
 ; exit if not searchable types
 !!FU&(replace)<>(TRUE):E;

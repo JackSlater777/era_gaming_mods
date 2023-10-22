@@ -1,0 +1,24 @@
+Mod list changes:
+- added "HD Portraits - 32 bit"
+- added "HotA"
+- added "Slater777 Scripts and Fixes"
+- added "XXL"
+- added "WoG Fix Rus + Emerald Artifacts"
+
+File list changes:
+- ERA Scripts Rus:
+    - /Lang/era_scripts_dlg.json:
+        - fixed syntax
+    - /Data/s/option 796 - use of the scrolls and banners.erm
+        - ai no longer breaks arts/scrolls/banners
+        - exp from breaking arts is no longer granted, you still can break arts to clean a backpack
+        - mana from breaking scrolls is no longer granted, you still can break scrolls to clean a backpack
+- Game Enhancement Mod:
+    - /lang/RMG_CustomizeObjectProperties.json:
+        - added objects with qty restriction
+- Wog Scripts:
+    - /Data/s/33 wog - castle upgrading.erm:
+        - the cost of upgrading building equals sum of building costs of non-upg and upg buildings
+        - extra growth from upgrading building equals basic growth
+    - /Data/s/69 wog - market of time.erm:
+        - it replaces only refugee camp
