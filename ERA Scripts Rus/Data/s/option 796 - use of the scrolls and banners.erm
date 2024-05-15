@@ -197,7 +197,7 @@ ZVSE2
   *!VR(basicExpGiven)&(artLevel)=(ART_LEVEL_MINOR):S750;           [...]
   *!VR(basicExpGiven)&(artLevel)=(ART_LEVEL_MAJOR):S1500;          [...]
   *!VR(basicExpGiven)&(artLevel)=(ART_LEVEL_RELIC):S3000;         [...]
-  !!VR(basicExpGiven):S0;
+  !!VR(basicExpGiven:y):S0;
   !!HE(hero):S(SKILL_LEARNING)/?(learningLevel:y); [уровень навыка "Обучение" героя]
   !!VR(expGiven:y):S(learningLevel) +20 *(basicExpGiven) :20;
   !!SN:T^es.796.art^/?z2/^exp^/(expGiven); [получаем текст вопроса в z2]

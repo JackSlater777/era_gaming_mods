@@ -1,7 +1,6 @@
-WoG Graphics Expansion + new artifacts. 
+WoG Graphics Expansion. 
 
-Author of WoG Graphics Expansion: Grossmaster
-Author of New artifacts: JackSlater
+Author: Grossmaster
 
 Also used materials made by:
 Valery

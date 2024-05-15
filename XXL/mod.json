@@ -1,12 +1,12 @@
 {
 	"caption": {
-		"Cn_Simp": "XXL-mod",
+		"Cn_Simp": "",
 		"en_US": "XXL-mod",
 		"ru_RU": "XXL-мод"
 	},
 	"description": {
 		"full": {
-			"Cn_Simp": "readme.txt",
+			"Cn_Simp": "",
 			"en_US": "readme.txt",
 			"ru_RU": "readme_ru.txt"
 		},
@@ -23,7 +23,7 @@
 		"index": 0
 	},
 	"mod_version": "1.0",
-	"priority": 0,
+	"priority": 1,
 	"compatibility": {
 		"class": "default",
 		"entries": {}
@@ -31,5 +31,5 @@
 	"platform": "era",
 	"info_version": "1.0",
 	"plugins": {},
-	"category": ""
+	"category": "gameplay"
 }
