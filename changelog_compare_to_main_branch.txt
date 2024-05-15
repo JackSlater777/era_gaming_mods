@@ -4,6 +4,12 @@ Mod list changes:
 - added "Slater777 Scripts and Fixes"
 - added "XXL"
 - added "WoG Fix Rus + Emerald Artifacts"
+- deleted "Enhanced Henchmen"
+- deleted "Advanced Classes Mod"
+- deleted "Mixed Neutrals"
+- deleted "Random wallpaper"
+- deleted "Stalker Spells Mod"
+- deleted "NewSpells"
 
 File list changes:
 - ERA Scripts Rus:
