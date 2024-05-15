@@ -136,7 +136,7 @@ ZVSE2
 !?FU(OnAfterErmInstructions); [Post-instruction trigger]
 !!UN:V?y-1/?y-2/?y-3/?y-4/?y-5; [Get game info: y-4=1 for a Network game]
 !!UN:P1/?y-6; [Check if Arrow Tower Experience is enabled: y-6=0 if YES]
-!!UN&y-4=1/y-6=0:P1/1; [Disable Arrow Tower Experience if a Network game]
+!!UN&y-4=1/y-6=0:P1/1; [Disable Arrow Tower Experience in a Network game]
 !!IF&y-4=1/y-6=0:M^%T(wog.1.arrowTower)^; [Display message that Arrow Tower Experience option was disabled]
 
 ********************************************************************************
@@ -256,7 +256,7 @@ ZVSE2
 
 !!VR(result):S0; [Set to 0 if spell is available]
 !!VR(result)&(banned):S1; [Set to 1 if spell is banned]
-!!VR(result)&(disabled):S2; [Set to 2 if spell is disabled]
+!!VR(result)&(disabled):S2; [Set to 2 if spell is disabled in the map]
 !!VR(result)&(disabled)/(banned):S3; [Set y-94 to 3 if spell is banned and disabled]
 !!VRy-94:S(result);                     [legacy]
 
@@ -761,6 +761,7 @@ Returned Values:
 !!VRy10&y3=1:S593 +y11; [new index number]
 !!VRvy10&y3=1:C16/11/1/-1/1/1/0; [hunting lodge]   [table of non-level 8 RY Objects]
 
+; Already moved to new script
 *!UN:P109/?y3; [check if Market of Time script is enabled]
 *!VRy3&y21=0:S0; [set y3 to 0 if Replace Objects isn't enabled]
 *!VRy20&y3=1:+1; [add one to object counter]
@@ -1272,31 +1273,7 @@ Returned Values:
 *!FU671&y20>0:P93/-1/0/y20/70; [replace 70% of scrolls]
 
 
-
 ------------
-** This section is Anders' code for adding Mithril for the Mithril script.
-*** Replace Resource Piles ***
-!!VRy1&870:S1;
-!!UN&870:U79/-1/?v1;  (Get number of resource piles on map(for replacing with Mithril))
-!!VRy3:S10;
-!!VRy3&v1<10:Sv1;       (1 of the ten first stacks will always be replaced. If less than ten stacks total, one will still be replaced)
-!!VRy1&870:S1 Ry3;      (Draw random number to see what pile to start with)
-!!VRv5:Sv70 +v70 -1;    (Get replacing frequency)
-!!VRv6:S0; (Check for number of replaced piles of Mithril)
-!!DO8179/y1/v1/1&870:P; (Cycle through all resource piles, replace one in what value v70 holds)
-
-*** Campfires ***
-!!IF:V9/1;
-!!UN&870:U12/-1/?v1;   (Get number of campfires on map(for replacing with Mithril))
-!!VRy3:S10;
-!!VRy3&v1<10:Sv1;      (1 of the ten first stacks will always be replaced. If less than ten stacks total, one will still be replaced)
-!!VRy1&870:S1 Ry3;     (Draw random number to see what pile to start with)
-!!VRv5:Sv70 +v70 -1;    (Get replacing frequency)
-!!DO8179/y1/v1/1&870:P;(Cycle through all Campfires, replace one in what value v70 holds)
-
-!!IF:V870/0;    (set Flag to indicate that Mithril has been added)
-** End of Mithril section.
--------------
 
 
 ** convert some artifacts
@@ -1329,6 +1306,7 @@ Returned Values:
 !!UN|y3=1/y4=1:U54/-1/?v951; [get number of monsters]
 !!VRv952:S-2; [Initialize v952 to last object for faster UN:U format]
 !!DO680/1/v951/1|y3=1/y4=1:Py3/y4; [loop through all monsters]
+!!FU(H3Quests_RefreshData):P(FALSE);
 
 ** add SoD terrains
 
@@ -1396,7 +1374,7 @@ Returned Values:
 !!VRy2&y3=4:S0 R99; [reroll percentile dice: y2]
 
 !!if&y2<x5;
-  !!if&x1=57;
+  !!if&x1=(OBJ_OBELISK);
     !!MTv952/v953/v954:N?y4; [If an Obelisk is replaced, get Obelisk number: y4]
     !!UN:L-2/y4/1; [If an Obelisk is replaced, set it to "visited" for all players]
   !!en;
@@ -1421,6 +1399,7 @@ Returned Values:
 ** function to check for replace-ability
 
 !?FU674;
+!#VA(objType:x);
 
 !!VRy1:Sv955 *7 +602; [now vy1 is footprint]
 !!VRy2:Sy1 +1; [now vy2 is terrain required]
@@ -1429,6 +1408,7 @@ Returned Values:
 
 !!TR952:T?y5/d/d/d/d/d/d/d; [get terrain]
 !!VRy4&vy2<>-1/vy2<>y5:S0; [wrong terrain]
+!!VRy4&(objType)=(OBJ_DRAGON_UTOPIA)/y5=8:S0; [Skip Utopias on water]
 
 !!FU686:P0/-1; [test square above yellow for redness]
 !!VRy6:Sv966;
@@ -1521,7 +1501,16 @@ Returned Values:
 
 !!VRy20:S0; [Initialize y20 to 0]
 !!UN&v955<=128:Av955/?y20; [y20=1 if artifact to be replaced is disabled - prevents quest hut artifacts being replaced]
-!!FU|v955<7/v955=128/v955>=141/y20=1:E; [Skip this artifact if it's Armageddon's Blade, a new WoG Artifact or a quest hut artifact]
+
+ [Check for a customized (or ERM-placed) artifact]
+!!UN:P904/1; [Disable error messages]
+!!UN:P905/0; [Reset P905 ERM error status to 0]
+!!AR952:M1/?z1; [Check for a custom text string]
+!!UN:P905/?y36 P905/(FALSE); [Check for error: y36=1 if error, meaning non-customized, or y36=0 if no error, meaning customized]
+!!UN:P904/0; [Enable error messages]
+
+ [Skip this artifact if it's Armageddon's Blade, a new WoG Artifact, a customized artifact or a quest hut artifact]
+!!FU|v955<7/v955=128/v955>=141/y20=1/y36=0:E;
 
 !!UN:Av955/3/?y4; [get artifact class into y4]
 !!VRx2&y4=16/v955<128:+1; [add 1 to counter: replace 1 in 4 relics with WoG Relics]
@@ -1654,8 +1643,13 @@ Returned Values:
  [x1=1 if replacing some monster with WoG monsters is enabled]
  [x2=1 if replacing some L3 monsters with ghosts is enabled]
 !!UN:U54/-1/-2/952; [get x/y/l of yellow square of monster into v952-v954]
-!!VRy2:S0 R99; [roll percentile dice]
-!!FU681&y2<50:Py2/x1/x2; [greatest chance is 50% - to save time only go on half the time]
+!!VR(random:y):S0 R99; [roll percentile dice]
+!!FU&(random)>=50:E; [Exit if roll is 50 or higher: greatest chance is 50% - to save time only go on half the time]
+
+!!FU(WOG_CheckIfMonIsEligibleToBeRepalced):P952/?(result:y);
+!!FU&(result)<>(TRUE):E;
+
+!!FU681:P(random)/x1/x2; [Possible conversion (greatest chance is 50%)]
 
 ** end of function
 
@@ -1850,7 +1844,7 @@ Returned Values:
 
 ** end of function
 
-; Level 1 & 2 Spells Scrools are replaced by Archer30
+// Level 1 & 2 Spells Scrools are replaced by Archer30
 ; This script must be executed later than all the classic WoG replacements. Otherwise you won't have spells scrolls replaced by other objects
 !?FU(OnEveryDay)&i^timerDay^=1/i^timerOnce^;
 !!UN:P252/?(wogOption:y);
@@ -1929,3 +1923,24 @@ Returned Values:
 ; Change its content according to chance
 !!VR(random:y):R0/0/5;
 !!AR(x)/(y)/(z):Vd(random);             [gold amount = 100 * AR:V value for ]
+
+// Allow to pick up Lost Bottles after defeating the guards
+; This script allow to pick up Lost Bottles and remove it from the map. These bottles are known to block H3 pathfinding and becomes a problem for custom maps.
+; AI players will never pick up Lost Bottles
+!$OB(OBJ_CREATURE_BANK)/19&(ERM_FLAG_IS_HUMAN);
+; Exit if the Utopia has not been cleared
+!!CB998:T?(isCleared:y);
+!!FU&(isCleared)<>(TRUE):E;
+
+!!IF:Q1/^%T(wog.138.lostBottle0)^;
+
+!!if&1;
+  !!VR(random:y):R0/0/255;
+  !!FU(GetTextFileString):P^randtvrn^/(random)/?(randInfo:z);
+  !!SN:T^wog.138.lostBottle1^/?(msg:z)/^info^/(randInfo);
+  !!IF:M^%(msg)^;
+
+  !!VR(random:y):R0/1/6;
+  !!SN:P^pickup0%(random)^;
+  !!UN:Ov998/v999/v1000/1;
+!!en;

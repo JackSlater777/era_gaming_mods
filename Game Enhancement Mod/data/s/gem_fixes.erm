@@ -7,9 +7,116 @@ ZVSE2
 ************************************************************************
 ************************************************************************
 
+// Flexible cheats input
+// by Archer30
+; This script enables good old HoMM 3 cheats for ERA
+; It also allows using cheats when the input is mixing with unrelated characters. The first word of the input would be checked and decide whether it's a cheat code input.
+; Cheats that works for both adventure map and battlefield in SoD now also works the same in ERA
+!?FU(gem_CreateERMHook);
+!#VA(setHook:x);
+
+!!SN:E(setHook)/1/4205107/(gem_OnDecryptInputString); 00402A33
+
+!?FU(gem_OnDecryptInputString);
+!#VA(hook:x);
+
+; Exit if it is not a place to use cheats
+!!FU(H3Dlg_GetCurrentDlgId):P?(dlgId:y);
+!!FU&(dlgId)<>(DLG_ADVMAP)/(dlgId)<>(DLG_BATTLE):E;
+
+; Get the input
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
+!!UN:C(ebp)/8/4/?(ptr:y);
+!!SN:B(ptr)/d/?(input:z);
+
+; Get rid of space before the first word
+!!SN:K(input)/?(size:y);
+
+!!re i/0/(size)/1/-1;
+  !!SN:K(input)/i/?(character:z);
+
+  !!br&(character)<>^ ^;
+!!en;
+
+!!FU&i=(size):E;
+
+!!VR(size):-1;
+!!FU(Substr):P(input)/i/(size)/?(input);
+
+; Catch only the first word of the input to check if they match any cheats
+!!VR(firstWord:z):M2/(input)/0;
+; Convert the first word to lower case for the next step
+!!FU(StrToLower):P(firstWord)/?(str:z);
+
+; Make old cheats work by converting them to new ones
+!!VR(newStr:z):S^^;
+
+; Check mappings
+; For adventure map
+!!if&(dlgId)=(DLG_ADVMAP);
+  !!OW:Ai^timerOwner^/?(hero:y);
+
+  !!if&(hero)>(NO_HERO);
+    !!if|(str)=^nwcmuchrejoicing^/(str)=^nwcmorpheus^/(str)=^wogfellowship^; [Full Morale on Hero. No AB]
+      !!VR(newStr):S^wogfellowship^;
+    !!el|(str)=^nwcigotbetter^/(str)=^nwcquigon^/(str)=^nwcneo^/(str)=^woggandalfwhite^; [Gain +1 Level for Hero]
+      !!VR(newStr):S^woggandalfwhite^;
+    !!el|(str)=^nwcantioch^/(str)=^nwcr2d2^/(str)=^nwclotsofguns^/(str)=^wogoliphaunt^; [All War Machines]
+      !!VR(newStr):S^wogoliphaunt^;
+    !!el|(str)=^nwctim^/(str)=^nwcmidichlorians^/(str)=^nwcthereisnospoon^/(str)=^wogsaruman^/(str)=^woggandalf^; [999 Mana and All Spells]
+      !!VR(newStr):S^wogsaruman^;
+    !!el|(str)=^nwcfleshwound^/(str)=^nwcdarthmaul^/(str)=^nwcagents^/(str)=^wogpathofthedead^; [Fill Each Slot with 10 Black Knights]
+      !!VR(newStr):S^wogpathofthedead^;
+    !!el|(str)=^nwcavertingoureyes^/(str)=^nwcpadme^/(str)=^nwctrinity^/(str)=^woggaladriel^; [Fill Your Army with Archangels]
+      !!VR(newStr):S^woggaladriel^;
+    !!el|(str)=^nwccoconuts^/(str)=^nwcpodracer^/(str)=^nwcnebuchadnezzar^/(str)=^wogshadowfax^; [Unlimited Movement for Hero]
+      !!VR(newStr):S^wogshadowfax^;
+    !!el|(str)=^nwccastleanthrax^/(str)=^nwcfollowthewhiterabbit^/(str)=^wogbilbo^; [Full Luck on Your Hero. No AB]
+      !!VR(newStr):S^wogbilbo^;
+    !!en;
+  !!en;
+
+  !!if|(str)=^nwcsirrobin^/(str)=^nwcbluepill^/(str)=^wogdarklord^/(str)=^wogdenethor^; [Instant lose. No AB]
+    !!VR(newStr):S^wogdarklord^;
+  !!el|(str)=^nwcalreadygotone^/(str)=^nwcprophecy^/(str)=^nwcoracle^/(str)=^wogpalantir^; [Show Full Grail Map]
+    !!VR(newStr):S^wogpalantir^;
+  !!el&(str)=^nwcignoranceisbliss^;     [Hide Full Map. No RoE, AB]
+    !!VR(newStr):S^wogmordor^;
+  !!el|(str)=^nwctrojanrabbit^/(str)=^nwcredpill^/(str)=^wogonering^/(str)=^wogfrodo^; [Instant Win. No AB]
+    !!VR(newStr):S^wogonering^;
+  !!el|(str)=^nwcshrubbery^/(str)=^nwcwatto^/(str)=^nwctheconstruct^/(str)=^wogisengard^; [100,000 Gold and 100 of Every Resource]
+    !!VR(newStr):S^wogisengard^;
+  !!el|(str)=^nwconlyamodel^/(str)=^nwccoruscant^/(str)=^nwczion^/(str)=^wogminastirith^; [All Buildings]
+    !!VR(newStr):S^wogminastirith^;
+  !!el|(str)=^nwcgeneraldirection^/(str)=^nwcrevealourselves^/(str)=^nwcwhatisthematrix^/(str)=^wogeyeofsauron^; [Reveal Full Map]
+    !!VR(newStr):S^wogeyeofsauron^;
+  !!el&(str)=^nwcphisherprice^;         [Alternate Color Scheme - not working? Disabled for now. No AB]
+    !!FU:E;
+
+    !!VR(newStr):S^wogsarumanofmanycolors^;
+  !!en;
+
+; For battle
+!!el&(dlgId)=(DLG_BATTLE);
+  !!if&i^battle_hero_%i(battle_current_side)^>(NO_HERO);
+    !!if|(str)=^nwctim^/(str)=^nwcmidichlorians^/(str)=^nwcthereisnospoon^/(str)=^wogsaruman^/(str)=^woggandalf^; [999 Mana and All Spells]
+      !!VR(newStr):S^woggandalf^;
+    !!en;
+  !!en;
+
+  !!if|(str)=^nwcsirrobin^/(str)=^nwcbluepill^/(str)=^wogdarklord^/(str)=^wogdenethor^; [Instant lose. No AB]
+    !!VR(newStr):S^wogdenethor^;
+  !!el|(str)=^nwctrojanrabbit^/(str)=^nwcredpill^/(str)=^wogonering^/(str)=^wogfrodo^; [Instant Win. No AB]
+    !!VR(newStr):S^wogfrodo^;
+  !!en;
+!!en;
+
+!!SN&(newStr)<>^^:B(ptr)/d/(newStr);
+
+
 // Assemble/Disassemble artifacts overhaul
 // by Archer30
-; In hero screen:
+; On hero screen:
 ; Assemble artifacts with parts not fully equipped (some in the backpack)
 ; Disassemble artifacts in the backpack
 
@@ -361,46 +468,67 @@ ZVSE2
 
 
 // Restrain hero level at 74 in random maps
-; Hero can reach no more than Level 108 in random maps
+// by Archer30
+; Hero can reach no more than Level 74 in random maps
 !?FU(OnAfterErmInstructions);
 *!UN:J1/?(lv:y)/d;
 *!FU&(lv)<>0:E;
 
 !!UN:C(GAME_MANAGER)/(UNC_INT)/?(gameMgr:y);
-!!VR(ptr:y):S(gameMgr) +128980;
-!!UN:C(ptr)/1/?(mapType:y);
+!!UN:C(gameMgr)/128980/1/?(mapType:y);
 
 !!if&(mapType)=114;
   !!UN:J1/74/d;
 !!en;
 
 
-// Disable tactics message before tactics - 0x462D98 JMP SHORT 0x462DCA
-!#UN:C4599192/2/12523;
-!#UN:C4599194/4/2425393296;
+// Prevent hero level to exceed the limit for all the cases
+// by Archer30
+; Not evn possible to break through the limit with HE:E
+!?FU(gem_CreateERMHook);
+!!SN:Ex1/1/5089718/(gem_OnCheckHeroLevelUp); 4DA9B6
+
+!?FU(gem_OnCheckHeroLevelUp);
+; Exit if there isn't a limit
+!!UN:J1/?(maxLv:y)/?(var:y);           [UN:J1 result is not reliable. Don't use it!]
+!!FU|(maxLv)<=0/(maxLv)>74:E;
+
+!!SN:E5088784/(CALLCONV_FASTCALL)/(maxLv);
+!!VR(maxExp:y):Sv1;
+
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDI)/4/?(exp:y);
+!!VR(exp):F0/(maxExp);
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDI)/4/(exp);
 
 
-// Fix Angel's Morale display
-// by Hawaiing
+// Fix resetting AI thinking radius to 4096 after loading a save game with HD mod feature
+// by Archer30
+; This is not a fix but simiply setting UN:J4 to ERA default, should secure the gameplay in most cases
+; Discussion: http://wforum.heroes35.net/showthread.php?tid=4218&pid=138675#pid138675
+!?FU(OnAfterErmInited);
+!!UN:J4/?i^gem_aiThinkingRadius^;
+!!VRi^gem_aiThinkingRadius^:F32000/(INT_MAX);
+
 !?FU(OnGameEnter);
-!!UN:C7735887/4/2425393296;
-!!UN:C7735891/1/144;
+!!UN:J4/?(radius:y);
+!!UN&(radius)<=4096:J4/i^gem_aiThinkingRadius^;
 
 
-// Fix WoG bug of SE Ability to evade attack with >27% chance;
-!!UN:C7456679/1/-1/182;  movsx -> movzx
-!!UN:C7456691/1/-1/182;  movsx -> movzx
-!!UN:C7456722/1/-1/182;  movsx -> movzx
+// Disable tactics message before tactics - 0x462D98 JMP SHORT 0x462DCA
+!?FU(OnGameEnter);
+!!UN:C4599192/2/12523;
+!!UN:C4599194/4/2425393296;
 
 
 // Enable combination artifacts and 5th misc slot for RoE/AB maps
+// by Hawaiing
 !?FU(OnGameEnter);
 !!UN:C(GAME_MANAGER)/(UNC_INT)/?(gameMgr:y);
-!!UN:C(gameMgr)/128664/(UNC_INT)/?(mapType:y);
-!!UN&(mapType)<2:C(gameMgr)/128664/(UNC_INT)/2;
+!!UN:C(gameMgr)/128664/(UNC_INT)/?(mapExpansion:y);
+!!UN&(mapExpansion)<2:C(gameMgr)/128664/(UNC_INT)/2;
 
 
-// Divide all the AI values by 15 in order to prevent negative values after gathering massive amount of troops
+// Divide all the AI values by 10 in order to prevent negative values after gathering massive amount of troops
 // by Archer30
 !?FU(OnAfterErmInstructions);
 ; Divide AI values only when Peasant's AI value is original (15)
@@ -441,7 +569,7 @@ ZVSE2
 ; Division
 !!el;
   !!re i/(MON_FIRST)/(lastMon);
-    !!MA:Ii/d:15;
+    !!MA:Ii/d:10;
   !!en;
 
   !!VRi^gem_aiValuesDivided^:S(TRUE);
@@ -466,9 +594,9 @@ ZVSE2
 *!en;
 
 
-
+// Other stuff
 !?FU(OnGameEnter);
-//
+
   !!UN:C6052891/1/4;                    [центрируем текст названия города в окне города (id 149)]
   ; радус открытия всей карты
   !!UN:C5196631/4/320;                  [чит-меню (ориг = 180)]
@@ -494,15 +622,9 @@ ZVSE2
 
   !!UN:C6241860/1/1/?(baseHeight:y); if the best of the plugin isn't active
   !!if&(baseHeight)=41;
-    !!UN:C6241860/1/1/54  C6243439/1/1/54  C6244490/1/1/54;! !UN:C 5F3E44/1/1/54  C 5F446F/1/1/54  C 5F488A/1/1/54;  [height of the creature desc in Battle/notBattle/buy creature info DLGs]
+    !!UN:C6241860/1/1/54  C6243439/1/1/54  C6244490/1/1/54; [UN:C 5F3E44/1/1/54  C 5F446F/1/1/54  C 5F488A/1/1/54; [height of the creature desc in Battle/notBattle/buy creature info DLGs]
     !!UN:C6241867/1/4/230 C6243446/1/4/230 C6244497/1/4/230; [yPos of the creature desc in Battle/notBattle/buy creature info DLGs]
   !!en;
-
-
-
-  // up to 6 digits to display mon_cost with RMC on mon dwell (default was 4)
-  !!UN:C5578846/1/1/40; [new gold cost text field width (default 32)]
-  !!UN:C5578848/2/1/36; [new gold cost text field xPos (default 40)]
 
 
   // fix AI behavior on the map >XL
@@ -651,52 +773,120 @@ C(ebp)/8/4/?i^gem_CurrentProc_Msg^;
 
 !!en;
 
-
+// disable mulpiplayer timer
 !?FU(OnGameLeave);
-  !!TL:E0; disable mulpiplayer timer
-
+  !!TL:E0; 
 
 4C841C
-// Fix of the crash in map veiew dlg with random Theme Music mod
-!?FU(gem_OnOpenMapViewDlg);
-  !!FU(gem_Buttons_Interaction):P(TRUE);
+// Fix crash in map veiew dlg with random Theme Music mod - currenlty disabled
+*?FU(gem_OnOpenMapViewDlg);
+  *!FU(gem_Buttons_Interaction):P(TRUE);
 
-!?FU(gem_OnCLoseMapViewDlg);
-  !!FU(gem_Buttons_Interaction):P;
+*?FU(gem_OnCLoseMapViewDlg);
+  *!FU(gem_Buttons_Interaction):P;
 
-!?FU(gem_CreateERMHook);                     [refresh screen after placing stack]
+// refresh screen after placing stack
+!?FU(gem_CreateERMHook);
 !!SN:Ex1/1/7696427/(gem_OnMonsterPlaceAtMap);
 
 !?FU(gem_OnMonsterPlaceAtMap);
 !!UN:R1;
+
+// Fix rebuilding town (after demolishing) doesn't update the max level of Mage Guild in random maps
+; Note: This hack is only valid for random maps as it can't tell whether the restriction comes from town type or is it from the map author
+; This script would conflict with mods that extends the max level of Mage Guilds in towns
+!?FU(OnAfterBuildTownBuilding);
+!#VA(townId:x) (buildingId:x);
+
+; Check if it is a random map
+!!UN:C(GAME_MANAGER)/(UNC_INT)/?(gameMgr:y);
+!!UN:C(gameMgr)/128980/1/?(mapType:y);[114 [r]andom_maps)]
+!!FU&(mapType)<>114:E;
+
+; Exit if not building (demolishing) town hall
+!!FU&(buildingId)<>10:E;
+
+; Exit if not from town screen
+!!FU(H3Dlg_GetCurrentDlgId):P?(result:y);
+!!FU&(result)<>(DLG_TOWN_SCREEN):E;
+
+; Get the town type to decide the max level of Mage Guilds
+!!CA0/(townId):T?(townType:y);
+!!VR(maxLevel:y):S2;
+
+; For Castle, the max level is 4
+!!if&(townType)=(TOWN_CASTLE);
+  !!VR(maxLevel):S3;
+; For the rest of the towns except for Stronghold and Fortress, the max level is 5
+!!el&(townType)<>(TOWN_STRONGHOLD)/(townType)<>(TOWN_FORTRESS);
+  !!VR(maxLevel):S4;
+!!en;
+
+; Allow 4th/5th level of Mage Guild to be built depending on town type
+!!if|(maxLevel)=3/(maxLevel)=4;
+  !!CA0/(townId):B4/3;
+!!en;
+
+!!CA0/(townId)&(maxLevel)=4:B4/4;
+
+; Set available spells
+!!FU(gem_Town_GetStruct):P(townId)/?(townStruct:y);
+; Tricky way to set addresses to 0
+!!VRz1:S^^;
+!!SN:E6023680/(CALLCONV_THISCALL)/(townStruct)/?z1;
+
+; Compatibility with Spell Research Mod
+!!UN:C6848424/4/?(spellsTable:y);
+!!FU(srm_SetUpTown):P(townId)/(spellsTable);
+
+
+// Rebalance Hill Forts - the cost of upgrade is calculated based on the level of the upgraded monster instead of the pre-upgraded monster
+; This is considered a bug fix as in the original H3, every upgrade has the same creature level before and after
+; In WoG with Extended Upgrade option, it's possible to upgrade Gremlins (level 1) to Santa Gremlins (leve 3) for free (since the fee is calculated based on Gremlins)
+; This script fixes this so that such upgrade would costs a little amount of fee (but still with discount as Hill Forts always do to low level creatures)
+!?FU(gem_CreateERMHook);
+!!SN:Ex1/1/5144591/(gem_OnGetHillFortMonLevel); 5144591
+
+!?FU(gem_OnGetHillFortMonLevel);
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/?(mon:y);
+
+!!if&(mon)>(NO_MON);
+  !!FU(GetUpgradedMonster):P(mon)/?(upgMon:y);
+  !!UN&(upgMon)>(NO_MON):Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/(upgMon);
+!!en;
+
+
+// Bad Fix: Prevent the curent movement points exceeds the max movement points
+// by Archer30
+; Many mod maker forgot to set both HE:W/G at the same time, resulting not possible to dig in a new day
+; WoG - Bonus and Curse feature (HE:Y) also ignore this problem. Discussion: http://wforum.heroes35.net/showthread.php?tid=4218&pid=138991#pid138991
+; Here we set HE:G to the same value with HE:W to prevent this issue happens
+!?FU(OnEveryDay_Quit)&i^timerOnce^;
+!!re i/(HERO_FIRST)/(HERO_LAST_WOG);
+  !!HEi:W?(currMp:y)/1 G?(maxMp:y);
+  !!HEi&(currMp)>(maxMp):G(currMp);
+!!en;
+
+
 ************************************************************************
 ************************************************************************
 ***************************** BATTLE FIXES *****************************
 ************************************************************************
 ************************************************************************
-// fix of the gold disappearing OnBattleReplay
-!?FU(OnBeforeBattleReplay);
-!!if&i^battle_owner_1^<>(NO_OWNER);
-  !!OW:Ri^battle_owner_1^/(RES_GOLD)/?i^gem_DefPlayerGold^;
-!!en;
-
-!?FU(OnBattleReplay)&i^gem_DefPlayerGold^;
-  !!OW:Ri^battle_owner_1^/(RES_GOLD)/i^gem_DefPlayerGold^;
-  !!VRi^gem_DefPlayerGold^:S0;
-
-// Update battle variabled on battle replay
-!?FU(OnBattleReplay);
-!!FU(UpdateBattleVars):P;
-
 ** Shackles of war (retreat vs neutrals bttles with SW)
-!?BG0&i^battle_hero_1^<(HERO_FIRST);
+!?FU(OnBeforeBattleAction)|i^battle_hero_1^<=(NO_HERO)/i^wog_72_randHeroActive^; [Works when the defender has no hero OR is a random hero (WoG Scripts)]
 !!BG:A?(actionType:y);
+
 !!if&(actionType)=(BATTLE_ACTION_RETREAT);
-  !!UN:C4689325/1/(ART_GRAIL);           [replace checked artId on hero to Grail from Shakles]
+  !!UN:C4689325/1/(ART_GRAIL);          [replace checked artId on hero to Grail from Shakles]
 !!en;
 
 !?FU(OnAfterBattleUniversal);
-!!UN:C4689325/1/(ART_SHACKLES_OF_WAR);           [setback correct art id ]
+!!UN:C4689325/1/(ART_SHACKLES_OF_WAR);           [set back correct art id]
+
+!?FU(OnGameLeave);
+!!UN:C4689325/1/(ART_SHACKLES_OF_WAR);           [set back correct art id]
+
 !?FU(OnBattleScreenMouseClick)&i^mouse_battleHex^>=(BATTLE_HEX_FIRST)/i^mouse_battleHex^<=(BATTLE_HEX_LAST);
 !!BU:Ei^mouse_battleHex^/?(stackId:y);
 
@@ -754,22 +944,6 @@ C(cmbMgr)/21700/4/?(armyPtr[0]) C(cmbMgr)/21704/4/?(armyPtr[1]);
 
 !!SN:E4447296/(CALLCONV_THISCALL)/(stack)/(hero[side])/(armyPtr[side])/(town)/(hero[oppSide])/(armyPtr[oppSide])/(ground);         [recalc luck and morale for stack only]
 
-// fix of the melee WM attack
-!?FU(gem_CreateERMHook);
-  !!SN:Ex1/1/4928265/(gem_OnBattleStackCheckReachability);             [for any wm in melle]
-
-!?FU(gem_OnBattleStackCheckReachability);                              [blocking attk action by war machines]
-  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/8/4/?(stack:y); [get current active stack]
-  !!UN:C(stack)/52/4/?t;                                               [get mon type]
-  !!SN:E4696752/(CALLCONV_FASTCALL)/t;                                 [is mon a war machine]
-  !!VRv1:&1;                                                           [check byte]
-  !!if&v1;                                                             [if true]
-    !!SN:X?y99/0;
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_RET)/4/4928298;                      [jump over adding near stack as reached target]
-  !!en;
-
-
-
 !?FU(gem_CreateERMHook);
 
 // open creatureInfoIncombat;
@@ -781,7 +955,7 @@ C(cmbMgr)/21700/4/?(armyPtr[0]) C(cmbMgr)/21704/4/?(armyPtr[1]);
 !!SN:Ex1/1/4500782/(gem_OnAfterArmySetNegativeMorale); // for morale stat changing
 
 !!SN:Ex1/1/4501536/(gem_OnAfterArmySetNegativeLuck); for negative luck stat changing in combat only
-!!SN:Ex1/1/4447389/(gem_OnAfterArmySetPositiveLuck); for positive luck stat changing in combat only
+!!SN:Ex1/1/4447391/(gem_OnAfterArmySetPositiveLuck); for positive luck stat changing in combat only
 
 !!SN:Ex1/1/4501694/(gem_OnCreatureGetLuckLvl); for luck stat changing not in combat only
 
@@ -797,8 +971,6 @@ C(cmbMgr)/21700/4/?(armyPtr[0]) C(cmbMgr)/21704/4/?(armyPtr[1]);
 !!SN:Ex1/1/4504330/(gem_OnCreatureGhostDragonDescriptionCreate);
 !!SN:Ex1/1/4504347/(gem_OnCreatureGhostDragonDescriptionCreate);
   
-
-!!SN:Ex1/1/4608191/(gem_OnAfterArtSpellCasting);  
 
 
 !?FU(gem_OnCreatureArchAngelDescriptionCreate);
@@ -951,9 +1123,11 @@ C(ebp)/16/4/d-i^gem_MonPlusLuckPower^ C(ebp)/20/4/di^gem_MonPlusLuckPower^;
 !?FU(gem_OnAfterArmySetPositiveLuck);
   !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/12/4/?(ownArmy:y);
   !!FU(gem_ArmyCompareTypeIteraror):P(ownArmy)/(MON_GHOST_BEHEMOTH)/?(result:y);
+  *!IF:L^%^;
+
   !!if&(result);
     !!VR(luckChanger:y):S2;
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/d(luckChanger:y); change luck by ally creatures
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/d(luckChanger:y); change luck by ally creatures
     !!VRi^gem_MonPlusLuckChanger^:S(MON_GHOST_BEHEMOTH);
     !!VRi^gem_MonPlusLuckPower^:S2;
   !!el;
@@ -1085,53 +1259,61 @@ C(ebp)/16/4/d-i^gem_MonPlusLuckPower^ C(ebp)/20/4/di^gem_MonPlusLuckPower^;
   !!MF:F(INT_MAX);
 !!en;
 
+
+// Bad Fix: Make sure the first acting stack is correct in the first round
+// by Archer30
+; Many mod makers forget about giving speed on FU(OnBattleRound) won't change the first creature acting. 
+; Ideally this script needs to be executed as late as possible to ensure overflow doesn't happen, like in a script with "-1000" as the prefix of filename
+!?FU(OnBattleRound_Quit)&i^battle_round^=0;
+!!FU(ActivateNextStack):P;
+
+
+// Bad Fix: Correct Dragon Heart's position to summon
+// by Archer30
+; Here we just recreate the summoning behaviour with Summon Elemental way to avoid the wrong position to summon
+; Discussion: http://wforum.heroes35.net/showthread.php?tid=4218&pid=138936#pid138936
+!?FU(gem_CreateERMHook);
+!!SN:Ex1/1/7764465/(gem_OnDragonHeartSummonDragons);
+
+!?FU(gem_OnDragonHeartSummonDragons);
+!#VA(hook:x);
+
+; Get details for summon
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
+!!UN:C(ebp)/-24/4/?(side:y) C(ebp)/-28/4/?(mon:y) C(ebp)/-12/4/?(num:y);
+
+; Get the values from memory and set
+!!UN:C(COMBAT_MANAGER)/(UNC_INT)/?(cmbMgr:y);
+!!UN:C(cmbMgr)/78528/(UNC_INT)/?(origActiveSide:y) C(cmbMgr)/78528/(UNC_INT)/(side);
+
+!!VR(summonedMonOffset:y):S(side) *(UNC_INT) +78504;
+!!UN:C(cmbMgr)/(summonedMonOffset)/(UNC_INT)/?(origSummonedMon:y); [The monster summoned by Summon Elemental spell]
+
+!!SS(SPELL_EARTH_ELEMENTAL):E0/?(origEff:y) E0/1;
+
+; Summon
+!!SN:E5927824/(CALLCONV_THISCALL)/(cmbMgr)/(SPELL_EARTH_ELEMENTAL)/(mon)/(num)/0;
+
+; Restore values to the memory
+!!UN:C(cmbMgr)/(summonedMonOffset)/(UNC_INT)/(origSummonedMon);
+!!UN:C(cmbMgr)/78528/(UNC_INT)/(origActiveSide);
+
+!!SS(SPELL_EARTH_ELEMENTAL):E0/(origEff:y);
+
+; Skip the native summon
+!!SN:X?t/0;
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_RET)/4/7764855;
+
 ************************************************************************
 ************************************************************************
 ************************** ADVENTURE MAP FIXES *************************
 ************************************************************************
 ************************************************************************
-// fill refugees by mons to evade pikeman creatures there
-!?FU(OnEveryDay)&i^timerWeekDay^=1/i^timerOnce^;
 
-  *!FU(GetMaxMonsterId):P?(lastMon:y);
-  *!UN:P200/?(isRefugeeSync:y);
-  *!if&(lastMon)=(MON_DRACOLICH)/(isRefugeeSync)<>(TRUE);
-
-    *!UN:U(OBJ_REFUGEE_CAMP)/(ANY_OBJ)/?(campsAmount:y);
-    *!if&(campsAmount);
-      *!re i/1/(campsAmount);
-        *!UN:U(OBJ_REFUGEE_CAMP)/(ANY_OBJ)/i/2;
-        *!FU(gem_GetRandomMon):P?(mon:y)/5/(MON_AZURE_DRAGON)/(MON_RUST_DRAGON)/(MON_FAERIE_DRAGON)/(MON_CRYSTAL_DRAGON)/(MON_DRACOLICH);
-        *!MA:G(mon)/?(growth:y);
-        *!OB2:T?(objType:y);
-        *!if&(objType)=(OBJ_HERO);
-          *!co;
-          *!HEv2/v3/v4:N?(heroId:y);
-          *!FU(gem_AdvMgr_HideHero):P(heroId:y);
-        *!en;
-        *!OB2:U(mon) C(growth);
-        *!if&(objType)=(OBJ_HERO);
-          *!FU(gem_AdvMgr_ShowHero):P(heroId:y);
-        *!en;
-      *!en;
-    *!en;
-  *!en;
-
-// recalc luck and morale after spell casting
-!?FU(gem_OnAfterArtSpellCasting);
-!!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y);
-!!SN:E4625200/(CALLCONV_THISCALL)/(cmbMgr);
-
-
-// witch huts - set all Sec Skills fix (not SKILL_NAVIGATION/ not SKILL_NECROMANCY)
-; Archer30: Where is the script?
-
-
-// Enable the tier 2 dwellings for every tonw in random maps
+// Enable the tier 2 dwellings for every town in random maps
 !?FU(OnAfterErmInstructions);
-  !!UN:C(GAME_MANAGER)/(UNC_INT)/?(value:y);
-  !!VR(address:y):S(value) +128980;
-  !!UN:C(address)/1/?(mapType:y); [y11=114 ?? ???????? (????[r]andom_maps)] 
+  !!UN:C(GAME_MANAGER)/(UNC_INT)/?(gameMgr:y);
+  !!UN:C(gameMgr)/128980/1/?(mapType:y);[114 [r]andom_maps)]
 
   !!if&(mapType)=114;
     !!UN:U(OBJ_TOWN)/(ANY_OBJ)/?(townsAmount:y);
@@ -1164,6 +1346,7 @@ C(ebp)/16/4/d-i^gem_MonPlusLuckPower^ C(ebp)/20/4/di^gem_MonPlusLuckPower^;
 
   !!en;
 
+
 // Fix Hd mod clicks outside Swap Mgr
 !?FU(OnHeroesMeetScreenMouseClick)|i^mouse_action^=(MOUSE_LMB_PRESSED)/i^mouse_action^=(MOUSE_RMB_PRESSED);
   !!FU(H3Dlg_GetCurrentDlg):P?(currentDlg:y);
@@ -1176,7 +1359,7 @@ C(ebp)/16/4/d-i^gem_MonPlusLuckPower^ C(ebp)/20/4/di^gem_MonPlusLuckPower^;
   !!en;
 
 
-// Fix occasionally a neutral stack with invalid quantity is put on the map. These stacks would be removed from the map here.
+// Bad fix: Fix occasionally a neutral stack with invalid quantity is put on the map. These stacks would be removed from the map here.
 // by Archer30
 !?FU(OnEveryDay)&i^timerOnce^;
 ; 904 - Disable Erm error report
@@ -1332,26 +1515,64 @@ C(ebp)/16/4/d-i^gem_MonPlusLuckPower^ C(ebp)/20/4/di^gem_MonPlusLuckPower^;
 
   ** End of Script **
 
+
+** Reduce heros' max walking speed on "Replay Opponent Turn"
+; This restrains the max walking speed on replay as usually when you replay, you missed something and you want to watch carefully
+!?FU(OnGameEnter);
+!!UN:C4838745/1/3;                      [original: 4]
+!!UN:C4838760/4/3;
+
 ************************************************************************
 ************************************************************************
 **************************** COMMANDER FIXES ***************************
 ************************************************************************
 ************************************************************************
-// Removing message about deacreasing army before combat and placing
-// them into combat log
 
 !?FU(gem_CreateERMHook);
+  // Removing message about deacreasing army before combat and placing
+  // them into combat log
   !!SN:Ex1/1/7786558/(gem_OnAstralAttackMessage);
   !!SN:Ex1/1/7787216/(gem_OnAstralDefendMessage);
   !!SN:Ex1/1/7772772/(gem_OnBruteGoldBonusMessage);
 
   // ART_SLAVAS_RING_OF_POWER's fixes
   !!SN:Ex1/1/7782812/(gem_OnNPCBattleStackInit);
-  *!SN:Ex1/1/7779070/(gem_OnNPCBattleDescriptionGet);
   !!SN:Ex1/1/7771289/(gem_OnNPCGetRingBonus);
-  !!UN:C7771553/-1/1/1;                                                                          [Change the number to check the skill level at 0x76959C cmp     dword ptr [eax+edx*4+38h], 2 / jg      short loc_7695E3]
+  !!UN:C7771553/-1/1/1;                 [Change the number to check the skill level at 0x76959C cmp     dword ptr [eax+edx*4+38h], 2 / jg      short loc_7695E3]
+  *!SN:Ex1/1/7779070/(gem_OnNPCBattleDescriptionGet);
+
+  // Elixir of Life gives full hp for NPC
+  *!SN:Ex1/1/4484064/(gem_OnWogRegenerationCheckingCombatCreatureAbilities);
+!?FU(gem_OnWogRegenerationCheckingCombatCreatureAbilities);
+  !!FU:E;
 
 
+  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(combatStack:y);
+  !!UN:C8646396/4/?(creatureId:y); temporary wog variable - here it contains handled creature id
+  !!if&(creatureId)>=(MON_COMMANDER_FIRST_A)/(creatureId)<=(MON_COMMANDER_LAST_D);
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(combatStack:y);
+    !!SN:E7788612/(CALLCONV_CDECL)/(creatureId)/(combatStack);
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/v1;?(crExpobonusRestoredHealth:y);
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDX)/4/50;(defaultRestoredHealth); remove healing bonus
+
+    *!VRv1:B;
+    *!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/0;-1;(defaultRestoredHealth); remove healing bonus
+    *!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/(defaultRestoredHealth); remove healing bonus
+  *!el&(crExpobonusRestoredHealth)<(defaultRestoredHealth);
+    *!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/(defaultRestoredHealth); set creature healing to default 50 (if stack exp gives less than that)
+  !!en;
+
+  !!FU:E;
+  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/?(crExpobonusRestoredHealth:y);
+
+  !!UN:C42232776/4/?(defaultRestoredHealth:y);
+  *!IF:L^%(creatureId) %(crExpobonusRestoredHealth)^;
+  !!if&(creatureId)>=(MON_COMMANDER_FIRST_A)/(creatureId)<=(MON_COMMANDER_LAST_D);
+    *!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/0;-1;(defaultRestoredHealth); remove healing bonus
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/(defaultRestoredHealth); remove healing bonus
+  !!el&(crExpobonusRestoredHealth)<(defaultRestoredHealth);
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/(defaultRestoredHealth); set creature healing to default 50 (if stack exp gives less than that)
+  !!en;
 
 !?FU(gem_OnBruteGoldBonusMessage); // replace brute message with adv map dlg info panel message
   !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/?(strPtr:y) Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-64/4/?(gold:y);
@@ -1424,7 +1645,7 @@ C(ebp)/16/4/d-i^gem_MonPlusLuckPower^ C(ebp)/20/4/di^gem_MonPlusLuckPower^;
     !!SN:E7791165/(CALLCONV_THISCALL)/(npc)/(ART_SLAVAS_RING_OF_POWER);                          [check if NPC has a ring]
     !!if&v1;                                                                                     [if there is]
       !!SN:X?y99/0;
-      !!UN:Cx1/(STRUCT_HOOK_CONTEXT_RET)/4/7771478;                                              [jumping directly to the calculation of bonuses from the ring, bypassing the addition of standard bonuses]
+      !!UN:Cx1/(STRUCT_HOOK_CONTEXT_RET)/4/7771478; [jumping directly to the calculation of bonuses from the ring, bypassing the addition of standard bonuses]
     !!en;
   !!en;
 
@@ -1447,6 +1668,48 @@ C(ebp)/16/4/d-i^gem_MonPlusLuckPower^ C(ebp)/20/4/di^gem_MonPlusLuckPower^;
       !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/1/2;                           [set skill cast value as at advanced skill lvl]
     !!en;
   !!en;
+
+
+// Fix Brute's Gold bonus overflowing
+// by Berserker
+!?FU(gem_CreateERMHook);
+!!SN:Ex1/1/7772754/(gem_Brute_AddGold);
+
+!?FU(gem_Brute_AddGold);
+!!SN:X?(hook:y);
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EBP)/(UNC_UINT32)/?(ebp:y);
+!!UN:C(ebp)/-64/(UNC_INT32)/?(bruteGold:y);
+!!UN:C(ebp)/-68/(UNC_INT32)/?(playerGold:y);
+
+; Fix calculated Brute gold bonus overflow
+!!VR(bruteGold)&(bruteGold)<0:S(INT_MAX);
+!!FU(gem_Brute_SafeAdd):P(playerGold)/(bruteGold)/?(finalGold:y);
+!!VR(playerGold):S(finalGold) -(bruteGold);
+!!UN:C(ebp)/-64/(UNC_INT32)/(bruteGold);
+!!UN:C(ebp)/-68/(UNC_INT32)/(playerGold);
+
+!?FU(gem_Brute_SafeAdd);
+!#VA(value1:x);
+!#VA(value2:x);
+!#VA(result:x);
+
+!!VR(result):S(value1) +(value2);
+!!VR(sign1:y):S1;
+!!VR(sign1)&(value1)<0:S-1;
+!!VR(sign2:y):S1;
+!!VR(sign2)&(value2)<0:S-1;
+
+!!if&(sign1)=(sign2);
+  !!VR(sign3:y):S1;
+  !!VR(sign3)&(result)<0:S-1;
+
+  ; Overflow changed result sign
+  !!if&(sign1)<>(sign3);
+    !!VR(result)&(sign1)<0:S(INT_MIN);
+    !!VR(result)&(sign1)>=0:S(INT_MAX);
+  !!en;
+!!en;
+
 
 // Fix occasionally commanders receiving incorrect exp with when transfering between campaign zones
 // by Archer30

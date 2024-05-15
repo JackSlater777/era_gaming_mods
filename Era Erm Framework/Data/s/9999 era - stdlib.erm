@@ -250,24 +250,23 @@ ZVSE2
 !#VA(activeStack:x);
 !!BM(activeStack:x):I?i^battle_current_side^;
 !!VRi^battle_current_stack^:S(activeStack);
+!!VRi^battle_isActingSideUiUser^:Si^battle_localHuman_%i(battle_current_side)^;
 
 !?FU(OnBattleStackObtainsTurn);
 !#VA(stackSide:x) (stackInd:x);
 !!VRi^battle_current_side^:S(stackSide);
 !!VRi^battle_current_stack^:S(stackSide) *(BATTLE_STACKS_PER_SIDE) +(stackInd);
-!!BMi^battle_current_stack^:G(SPELL_HYPNOTIZE)/?(isHypno:y)/?y99;
-!!if&(isHypno);
-  !!VRi^battle_current_side^:X1;
-!!en;
+
+!!BMi^battle_current_stack^:G(SPELL_HYPNOTIZE)/?(isHypnotized:y)/?t;
+!!VRi^battle_current_side^&(isHypnotized):X1;
+
+!!VRi^battle_isActingSideUiUser^:Si^battle_localHuman_%i(battle_current_side)^;
 
 !?FU(OnBeforeBattleAction);
 !!BG:N?i^battle_acting_stack^ Q?i^battle_acting_side^;
-!!if&i^battle_isNetwork^=0/i^battle_hasHuman^;
-  !!UN:C6916044/4/?i^battle_isQuick^;
-  !!if&i^battle_isQuick^;
-    !!VRi^battle_isVisible^:S(FALSE);
-  !!en;
-!!en;
+!!BA:Q?i^battle_isQuick^; can be changed during battle (!)
+!!VRi^battle_isVisible^:Si^battle_aiOnly^ |i^battle_isQuick^ X(TRUE);
+!!VRi^battle_isActingSideUiUser^:Si^battle_localHuman_%i(battle_current_side)^;
 ; ======== END EVENTS ========
 
 
@@ -415,6 +414,147 @@ ZVSE2
 !!en; re
 
 !!SN:M(list)/(newListSize);
+!!VRs^temp^:S^^;
+
+!?FU(Array_Move);
+; Copies part of the array into another part of the array, overwriting existing values in a smart way.
+; The parts may have overlapping indexes. The size of array never changes.
+; Example: X X X [A B C] X X {X X X} => X X X [A B C] X X {A B C}
+; Example: X X X [A {B C] X} X X X X => X X X [A {A B] C} X X X X
+!#VA(list:x);    Array ID.
+!#VA(offset:x);  Index to start copy from.
+!#VA(length:x);  Number of items to copy.
+!#VR(destInd:x); Position in array to copy items to (overwriting existing values).
+
+!!VR(listSize:y):S-1;
+!!SN:M(list)/?(listSize)/?(itemsType:y)/d;
+!!FU&(listSize)<0:E;
+
+!!FU:A?(numArgs:y);
+
+!!if&(numArgs)<(@destInd);
+  !!SN:F^ShowErmError^/^Array_Move: invalid number of function arguments^;
+  !!FU:E;
+!!en;
+
+!!FU|(offset)>=(listSize)/(destInd)>=(listSize)/(offset)=(destInd)/(length)=0:E;
+
+!!if&(offset)<0;
+  !!SN:F^ShowErmError^/^Array_Move: invalid 'offset' argument: %(offset)^;
+  !!FU:E;
+!!en;
+
+!!if&(length)<0;
+  !!SN:F^ShowErmError^/^Array_Move: invalid 'length' argument: %(length)^;
+  !!FU:E;
+!!en;
+
+!!if&(destInd)<0;
+  !!SN:F^ShowErmError^/^Array_Move: invalid 'destInd' argument: %(destInd)^;
+  !!FU:E;
+!!en;
+
+!!VR(maxSrcChunkLength:y):S(listSize) -(offset);
+!!VR(maxDstChunkLength:y):S(listSize) -(destInd);
+!!VR(length):F0/(maxSrcChunkLength) F0/(maxDstChunkLength);
+
+!!if&(itemsType)=(M_INT);
+  !!SN:M(list)/?(listAddr:y)/0;
+  !!VR(srcAddr:y):S(offset) *(SIZEOF_INT) +(listAddr);
+  !!VR(dstAddr:y):S(destInd) *(SIZEOF_INT) +(listAddr);
+  !!VR(numBytesToCopy:y):S(length) *(SIZEOF_INT);
+  !!SN:K(numBytesToCopy)/(srcAddr)/(dstAddr)/1;
+!!el;
+  !!VR(srcChunkEndInd:y):S(offset) +(length) -1;
+
+  !!VR(srcInd:y):S(offset);
+  !!VR(dstInd:y):S(destInd);
+  !!VR(step:y):S1;
+
+  ; If source and destination chunks overlap and we need to copy left part to the right, then we need to reverse copying order (from chunks end to start)
+  ; Otherwise source chunk would overwrite itself
+  !!if&(offset)<(destInd)/(srcChunkEndInd)>=(destInd);
+    !!VR(srcInd):+(length) -1;
+    !!VR(dstInd):+(length) -1;
+    !!VR(step):S-1;
+  !!en;
+
+  !!re i/1/(length);
+    !!SN:M(list)/(srcInd)/?s^temp^ M(list)/(dstInd)/s^temp^;
+    !!VR(srcInd):+(step);
+    !!VR(dstInd):+(step);
+  !!en;
+!!en; else
+
+!!VRs^temp^:S^^;
+
+!?FU(Array_Splice);
+; Deletes specified number of items from start index and inserts new items in the same position afterwards.
+; The function can be used for items deletion, insertion or replacement.
+!#VA(list:x);              ID of array to perform splicing in.
+!#VA(startIndex:x);        Index of first item to delete. If it's negative, it means "from array end". Thus -1 is the last array item.
+!#VA(numItemsToDelete:x);  Optional. Number of items to delete.
+;                          If not specified, all items are deleted from start index till array end.
+;                          If it is positive, then that many elements will be removed.
+;                          If it is negative, then the end of the removed portion will be that many elements from the end of the array.
+;                          If it is zero, no elements will be removed.
+!#VA(firstItemToInsert:x); ... Up to 13 arguments to insert in the position of deleted items.
+
+!!VR(listSize:y):S-1;
+!!SN:M(list)/?(listSize)/?(itemsType:y)/d;
+!!FU&(listSize)<0:E;
+
+!!FU:A?(numArgs:y);
+
+!!if&(numArgs)<(@startIndex);
+  !!SN:F^ShowErmError^/^Array_Splice: invalid number of function arguments^;
+  !!FU:E;
+!!en;
+
+!!VR(startIndex)&(startIndex)<0:+(listSize);
+!!VR(startIndex):F0/(listSize);
+
+!!VR(maxItemsToDelete:y):S(listSize) -(startIndex);
+!!VR(numItemsToDelete)&(numArgs)<(@numItemsToDelete):S(listSize);
+!!VR(numItemsToDelete)&(numItemsToDelete)<0:S(listSize) +(numItemsToDelete) -(startIndex);
+!!VR(numItemsToDelete):F0/(maxItemsToDelete);
+
+!!VR(numInsertions:y):S(numArgs) -(@firstItemToInsert) +1;
+!!VR(listSizeDiff:y):S(numInsertions) -(numItemsToDelete);
+!!VR(newListSize:y):S(listSize) +(listSizeDiff);
+
+; Determine, where to move the right (tail) part of array
+!!VR(chunkStartInd:y):S(startIndex) +(numItemsToDelete);
+!!VR(chunkDestInd:y):S(chunkStartInd) +(listSizeDiff);
+
+; The number of deleted items is greater, than the number of inserted ones. We should shift tail items to the left BEFORE array is shrinked
+; L L L [insert 1] [insert 2] [deleted 3] [deleted 4] R R R R => L L L [insert 1] [insert 2] R R R R [garbage] [garbage]
+!!FU(Array_Move)&(listSizeDiff)<0:P(list)/(chunkStartInd)/(listSize)/(chunkDestInd);
+
+; Perform array resize only if its length actually changed
+!!SN&(listSizeDiff)<>0:M(list)/(newListSize);
+
+; The number of inserted items is greater, than the number of deleted ones. We should shift tail items to the right AFTER array is expanded
+; L L L [replaced 1] [replaced 2] [R vs insert 3] [R vs insert 4] R R => L L L [replaced 1] [replaced 2] [insert 3] [insert 4] R R R R
+!!FU(Array_Move)&(listSizeDiff)>0:P(list)/(chunkStartInd)/(listSize)/(chunkDestInd);
+
+; Write inserted/replaced items
+!!if&(numInsertions)>0;
+  !!VR(endIndex:y):S(startIndex) +(numInsertions) -1;
+  !!VR(insertedItemPtr:y):S(@firstItemToInsert);
+
+  !!re i/(startIndex)/(endIndex);
+    !!if&(itemsType)=(M_INT);
+      !!SN:M(list)/i/x(insertedItemPtr);
+    !!el;
+      !!VR(strPtr:y):Sx(insertedItemPtr);
+      !!SN:M(list)/i/z(strPtr);
+    !!en;
+
+    !!VR(insertedItemPtr):+1;
+  !!en;
+!!en;
+
 !!VRs^temp^:S^^;
 
 !?FU(Array_Copy);
@@ -1179,6 +1319,64 @@ ZVSE2
 !!VRf:S(value) Sd>>16 X(value) *295559667;
 !!VRg:Sf Sd>>16 Xf *295559667;
 !!VR(result):Sg Sd>>16 Xg;
+
+!?FU(Hash32);
+; Calculates int32 digest (hash sum) of arbitrary sequence of bytes.
+!#VA(data:x);    Pointer to data first byte or string
+!#VA(dataLen:x); Length of data in bytes
+!#VA(result:x);  Result hash
+
+!!VR(savedV1:y):Sv1;
+!!SN:F^Hash32^/(data)/(dataLen);
+!!VR(result):Sv1;
+!!VRv1:S(savedV1);
+
+!?FU(MakeRngSeed);
+; Generates deterministic int32 seed for pseudo random number generator, consuming up to 15 arbitrary int32 parameters.
+; Example: FU(MakeRngSeed):P(x)/(y)/(z)/(heroId)/?(seed:y); get prng seed, which will be the same for given coordinates and hero
+!#VA(firstArg:x);
+
+!!FU:A?(numArgs:y);
+!!FU&(numArgs)=0:E;
+
+!!VR(savedV1:y):Sv1;
+!!VR(resultPtr:y):S(numArgs);
+!!VR(dataLen:y):S(numArgs) -1 *(SIZEOF_INT);
+!!SN:F^Hash32^/?(firstArg)/(dataLen);
+!!VRx(resultPtr):Sv1;
+!!VRv1:S(savedV1);
+
+!?FU(SplitMix32);
+; Generates new random value using SplitMix32 algorithm and modifies input seed value.
+; Possible syntaxes:
+;  FU:P?(seed:y) ?(result:y);             Generate random int32 value (negative or positive)
+;  FU:P?(seed:y)/(min)/(max) ?(result:y); Generate random int32 value in [min..max] range
+!#VA(seed:x);   OUT. Previous generator seed. Pass by reference (using ?), because this value will change after generation
+!#VA(min:x);    Minimum value.
+!#VA(max:x);    Maximum value.
+!#VA(result:x); OUT. Result number
+
+!!FU:A?(numArgs:y);
+
+!!if&(numArgs)<>2/(numArgs)<>4;
+  !!SN:F^ShowErmError^/^SplitMix32: invalid number of arguments^;
+  !!FU:E;
+!!en;
+
+!!if&(numArgs)=2;
+  !!VR(minValue:y):S(INT_MIN);
+  !!VR(maxValue:y):S(INT_MAX);
+  !!VR(resultPtr:y):S(@min);
+!!el;
+  !!VR(minValue:y):S(min);
+  !!VR(maxValue:y):S(max);
+  !!VR(resultPtr:y):S(@result);
+!!en;
+
+!!VR(savedV1:y):Sv1;
+!!SN:F^SplitMix32^/?(seed)/(minValue)/(maxValue);
+!!VRx(resultPtr):Sv1;
+!!VRv1:S(savedV1);
 ; ======== END MATH ========
 
 
@@ -1565,7 +1763,7 @@ ZVSE2
 
 !?FU(ScanDir);
 ; Reads directory contents, filling specified list with file names.
-; Example: P^Np3^/(fileList)/(SCAN_FILES_ONLY);
+; Example: P^Mp3^/(fileList)/(SCAN_FILES_ONLY);
 !#VA(dirPathPtr:x); Absolute or relative path to directory to scan.
 !#VA(fileList:x);   ID of array to store file names in.
 !#VA(itemsType:x);  OPT. Type of items to collect: files, directories or both. One of SCAN_XXX constants. Default: SCAN_FILES_AND_DIRS.
@@ -2335,6 +2533,17 @@ ZVSE2
 !!UN:C(COMBAT_MANAGER)/(UNC_INT)/?(combatMan:y);
 !!SN:E4607760/(CALLCONV_THISCALL)/(combatMan)/(stackSide)/(stackInd);
 
+!?FU(ActivateNextStack);
+; Finds and activates next stack. Returns TRUE on success and FALSE if nobody can move in this phase.
+; TRUE is returned before round end and before waiting phase start.
+!#VA(result:x);
+
+!!UN:C(COMBAT_MANAGER)/4/?(combatManager:y);
+!!VR(savedV1:y):Sv1;
+!!SN:E4607072/(CALLCONV_THISCALL)/(combatManager)/(TRUE);
+!!VR(result)&(result)<>0:Sv1 &(BITS_1_MASK);
+!!VRv1:S(savedV1);
+
 !?FU(UpdateBattleVars);
 ; Updates global variables with most of "OnBeforeBattle/Universal" event parameters.
 ; Call this function if you change anything, except monsters, via BA command.
@@ -2393,8 +2602,8 @@ ZVSE2
 !!VRi^battle_type^:S(battleType);
 
 !?FU(OnBattleReplay);
-!!BA:Q?i^battle_isQuick^;
-!!VRi^battle_isVisible^:Si^battle_isQuick^ X(TRUE);
+!!VRi^battle_round^:S(INT_MIN);
+!!FU(UpdateBattleVars):P;
 ; ============= END BATTLE =============
 
 
@@ -2677,10 +2886,10 @@ ZVSE2
 ; ============ END ARTIFACTS ============
 
 
+; The following contents were created by Era Project Team.
+
+
 ; =============== TEXT ==================
-
-; This section was created by Era Project Team.
-
 !?FU(GetTextFileString);
 ; Get strings from text resources
 !#VA(txtFilename:x);                    [filename of the text]
@@ -2695,10 +2904,14 @@ ZVSE2
 !!SN:K(text)/(index)/?(character:z);
 !!FU(Substr)&(character)=^.^:P(text)/0/-4/?(text);
 
-!!if&(text)=^arraytxt^;
-  !!VR(address:y):S6971564;             [array text]
+!!if&(text)=^randtvrn^;
+  !!VR(address:y):S6910692;             [random tavern info]
+!!el&(text)=^arraytxt^;
+  !!VR(address):S6971564;               [array text]
 !!el&(text)=^genrltxt^;
   !!VR(address):S6970820;               [general text]
+!!el&(text)=^tcommand^;
+  !!VR(address):S6972152;               [TCommand]
 !!el&(text)=^artevent^;
   !!VR(address):S6909120;               [artifact events]
 !!el&(text)=^crgen1^;
@@ -2720,14 +2933,14 @@ ZVSE2
 !!el&(text)=^skilllev^;
   !!VR(address):S6979432;               [secondary skill levels]
 !!el&(text)=^advevent^;
-  !!VR(address):S6908520;               [adventure map object events]  
+  !!VR(address):S6908520;               [adventure map object events]
 !!el;
   !!VR(string):Z^Wrong txt filename!^;
   !!FU:E;
 !!en;
 
 ; @Master Of Puppets
-!!UN:C(address)/(UNC_INT)/?(value:y);            
+!!UN:C(address)/(UNC_INT)/?(value:y);
 !!VR(address2:y):S(value) +32;
 !!UN:C(address2)/(UNC_INT)/?(value3:y);
 !!VR(address3:y):S(rowIndex) *4 +(value3);
@@ -2767,3 +2980,55 @@ ZVSE2
 
 !!VRv1:S(savedV1);
 ; =============== TEXT ==================
+
+; ============= H3QUEST =================
+!?FU(H3Quests_RefreshData);
+!#VA(forceRefreshText:x);
+; change text and pictures for the quests guards/seerhuts/questlogs to actual one
+; call that function after all replacemnent procedures; By default game executes that once at the end of new day
+; also makes sense to affect the quest messages after changing hero/artifact/creature names
+!!UN:C(GAME_MANAGER)/4/?(gameMgr:y); // get combat
+!!VR(questsVector:y):S(gameMgr) +129904 +176; // game mgr +0x1FB70 mainStructList +0xB0 H3Vector<H3Quests*>
+!!UN:C(questsVector)/4/4/?(first:y) C(questsVector)/8/4/?(end:y); // get vetor'start/end
+!!VR(size:y):S(end) -(first) Sd>>2; // take size
+
+!!if&(size);
+  !!VR(savedV1:y):Sv1; // save v1
+
+  !!re i/0/(size)/1/-1; // loop all H3Quests*
+    !!VR(needToRefreshText:y):S(forceRefreshText);
+    !!VR(offset:y):Si Sd<<2;
+
+    !!UN:C(first)/(offset)/4/?(quest:y); // take Quest*
+    !!UN:C(quest)/4/?(virtTable:y); // get Quest VTable
+
+    !!UN:C(virtTable)/32/4/?(typeFunc:y); // get Quest Type Function addres
+
+    !!SN:E(typeFunc)/(CALLCONV_THISCALL)/(quest);
+    !!VR(questType:y):Sv1;
+    !!if&(questType)=(QUEST_TYPE_DEFEAT_MONSTER);
+      !!UN:C(quest)/68/4/?(packedCoords:y); // get target mon mixed pos
+      !!UN:C(quest)/72/4/?q; get assumed mon type at coordinates
+
+      !#VA(x:y) (y:y) (z:y);
+      !!SN:E7413577/1/?(x)/?(y)/?(z)/(packedCoords); // unpack mon pos
+      !!OB(x)/(y)/(z):T?t U?s; // get real mon type at coordinates
+
+      !!if&t=(OBJ_MONSTER)/s<>(NO_MON)/s<>q; if they are different
+        !!UN:C(quest)/72/4/s; set new quest mon type
+        !!VR(needToRefreshText):S(TRUE);
+      !!en;
+    !!en;
+
+    !!if&(needToRefreshText);
+      !!re k/0/2; loop quest's messages
+        !!VR(propString:y):Sk*16 +8 +(quest); take str pointers
+        !!SN:E4210928/(CALLCONV_THISCALL)/(propString); clear original strings 0x4040F0
+      !!en;
+      !!UN:C(virtTable)/56/4/?(setTextFunct:y);
+      !!SN:E(setTextFunct)/(CALLCONV_THISCALL)/(quest); set text function
+    !!en;
+  !!en;
+  !!VRv1:S(savedV1:y); // restore v1
+!!en;
+; ============= H3QUEST END =================

@@ -1,5 +1,114 @@
 Changelog
 ***************************************************************************************************************************************************************
+
+Version 1.093 (28.April 2024)
+- Buff the Landmine spell by doing these changes:
+  Now the spell can be cast if there are native terrain creatures on enemy stack
+  Native terrain creatures will see landmine as normal but will take damage from mines (this change has to be reconsidered after latest plays-testing)
+- Improved Arcane Prophet ability (now damage increase i shown when starting the combat and not randomly selected before every cast. Damage increase directly visible in the spell book). Updated artifact description of SP Reg artifacts.
+- Druid Concentration Perk now works with battle replay.
+- Lord ability or Town plunder now has a 2 week cool-down for each town
+- Master Warrior Perk corrected name. Hybrid classes now get the same amount of crit as Master Warrior
+- Brute commander passive now also work for defending hero
+- Hypnotize duration fix thanks to SadnessPower
+
+
+Version 1.092 (26.March 2024)
+
+- Soul Eater commander now shows amount of resurected skeletons during combat in battle log
+- updated artifact set description (thanks to Christian)
+- merged Necromancy changes from Archer
+- changed commander hero specialty and Lord Hart is no longer Estate specialist
+(One focus on Blocking, one on Regeneration, one on Max Kill count, one on Strikes All around ability) 
+
+
+Version 1.091 (25.Februar 2024)
+
+New:
+- spell hovering over enemy creature shows Magic Pierce and Magic Resistance of enemy stack
+- right clicking spell book in combat shows additional info about available extra casts and abilities
+
+Fix:
+- fixed a bug in commander class promotion screen which could lead to no selected class (thanks to Archer)
+- fixed First Aid Specialists not granting bonus HP (thanks to Matrix4767)
+- fixed possible wrong calculation of Magic Arrow damage based on magic school
+- fixed First Aid Tent healing after combat when switching in new stacks (eg TUM CBs)
+- fixed correct display of max spell points in combat with M/GM Intelligence
+- fixed resource bar will now update after scouting event (thanks to Archer)
+- fixed second strike from Retaliator commander class no having increased damage
+- fixed ranged AOE damage will now correctly hit the surrounding targets if clicked on 2 hex wide units
+- fixed Luck reducing artifacts will now show correct again in battle when checking creatures
+
+Balance:
+- Channeling ability will now work with >=95% of max spell points and added battle tool tip when ability was active
+- slighlty lowered the spell costs of some spells, but increased the cost of multicasting in the same round (+5,+10,+15,+20...)
+- King commander class second turn now only works when mastery is active. This commander cannot have positive morale
+- creature casts, like from commanders, will now check for enemy resistance dwarv type 
+- Strike All Around damage will no only do 50% of damage to secondary targets (thanks to Archer)
+- Defense reduce ability from commander now at 25% instead of 50%
+- WM upgrades and enchantments for computer player are now a bit less frequent
+- Booby Trap upgrade cost increased, description updated, damage decreased and now it respects Magic Resistance secondary skill. (thanks to Diozia)
+- Necro commander now raises skeltons also on retaliation
+- Elemental Specialists heroes chance to gain extra cast slighlty reduced
+- computer player will now get Warmachine upgrades based on his secondary skills (thanks to SadnessPower)
+
+Version 1.09 (17.December 2023)
+
+New:
+- added 18 additional commander classes, including a new secret class that must be unlocked with an in-game riddle
+- transferred class pictures of heroes from pcx to png images, meaning no more half-transparent pictures in the advanced class screen
+- changed hero secondary skills or spells will now show correctly when selecting a random map and viewing the hero (thanks to Daemon for the plugin)
+- Heroes with commander speciality now the values will show in the commander bonus list
+- Summoner Specialists (Alamar and Thunar) now have a new and more fitting icon (thanks to ???)
+- Removed Eagle Eye skill ability to visit objects from a distance. Restored possibility to use Sorcery I WoG option. The remade version from Daemon is much better. Still, the option seems OP
+- added extended artifact set descriptions (thanks to Kongsuni)
+- Alternative Necro Option. Implemented native Necromancy mechanic, Alternative Necromancy option will now only raise the given value, ignoring all other sources like specializations, artifacts or skill. (thanks to Archer)
+- When selecting a new commander class it will not give additional information about special perks in the info bar of that dialogue.
+- changed code to apply additional damage during combat and how it is shown: for Sniper, Paladin, Dragonslayer commander. For Grandmaster Adventurer Stand united ability, Gnolls Fail, Drakshard sword and that Cherry Bow. Damage will now be indicated in mouse hover
+
+
+Balance:
+- Ignissa free Firebird starts from level 5 instead from level 1
+- slightly lowered Heal Capacity
+- Dragon Fire Set +1 att and +1 def set bonus
+- Dif Mod: increased computer player starting units if the neutral stack size is enabled
+- increased Fire Shield return damage to 20% (from 10%). Like with basic fire magic in SoD
+- Druids Adv class Concentration perk now has increased duration of buffs taken to the next battle round
+- balance changes to commander skills. Strikes All Enemies around reduces commander damage by 15%. Block ability changed to reduce damage by only 50% instead of 100%.
+- Regeneration ability's regenerates 50+5% of max commander health
+- slightly reduced commander specialist power (Pasis, Vey, Torosar)
+- Scout com class now only generates res and no more gold, because that is Brute stuff
+- Commanders can now gain kill count when casting buffs/debuffs, to not only rely on damage to advance
+- reduced caster commander damage scaling in early and late-game 
+
+
+Fix:
+- Bonus damage from the Improved Magic Arrow M/GM perk now not counted as extra damage
+- spell trainer max level up now does not reset when replay battle
+- Mystic/Intelligence specialists fix for dropping below zero mana
+- Fire Mage cannot deal negative damage at level 1 (thanks to aldzzz)
+- fixed missing extra shield bonus from Dragon Scale Shield (thanks to stonem)
+- fixed Defender Commander passive now works as intended
+- fixed wrong passive calculation for Brute Commander in battle
+- fixed rare bug that commanders could get zero speed at new battle round with Hunter perk
+- fixed visual glitch in hero advanced level screen (thanks to polebeer)
+- with Eagle Eye pre damage creatures cannot drop below zero health
+- Emblem of Cognizance now protects from damage and makes battle log entry
+- digging for Grail now works better with M/GM Logistics
+- corrected HP bonus from Adv Ballistics skill (thanks to TymanDyrman)
+- Hunter Magic Block perk corrected description (+50MR in First Battle Round)
+- corrected Hunter First Shot ability not working for first unit
+- ACM now checks for newest ERA 3 version
+- Casting Fireball with commander only reduces spell points once, instead of for every target
+- small fix for First Aid tent erm error (thanks to wafs)
+- disabled Land Navigation option
+- more multiplayer improvements
+- selecting the commander class in MP matches now should work better (thx to Yosh for the hint)
+- fixed Master Quicksand spell now is placed before two hex shooters also
+- fixed wrong placement of mines from master teleport spell if more than 10 creatures are standing on the battlefield
+
+
+
 Version 1.087 (26.Februar 2023)
 
 - updated ERA version check at game start to ERA 3.93

@@ -51,11 +51,12 @@ ZVSE2
 !!if&(result);
   !!MF:F?(finalDmg:y);
 
-  ; Check if the defedning monster is a living one
+  ; Check if the defending monster is a living one
   !!BM(defStack):F?(monFlags:y);
   !!VR(isAlive:y):S(monFlags) &(MON_FLAG_ALIVE);
+  !!VR(isClone:y):S(monFlags) &(MON_FLAG_CLONE);
 
-  !!if&(isAlive);
+  !!if&(isAlive)/(isClone)=(FALSE);
     ; Check if the defending monster would be be killed by the flesh eater
     !!BM(defStack):N?(num:y) H?(hp:y) L?(lostHp:y);
     !!VR(defCurrTotalHp:y):S(num) *(hp) -(lostHp);
@@ -72,12 +73,15 @@ ZVSE2
 !#VA(atkStack:x) (defStack:x);
 
 ; Warning: 
-; In some case the attacerk's killed, or the defender wasn't killed, quit the flesh eating scene
+; In some case the attacker's killed, or the defender wasn't killed, quit the flesh eating scene
 ; However, the defender would still suffer from clone flag/0 spell. Will be fixed if reported
 !!BM(atkStack):N?(atkNum:y);
 !!BM(defStack):N?(defNum:y);
 
 !!if&(atkNum)>0/(defNum)<=0;
+  ; Remove the clone flag from the defender
+  !!BM(defStack):Fd~(MON_FLAG_CLONE);
+
   ; Calculate the new HP and number of the flesheater
   !!VR(noHpLost:y):S(FALSE);
   !!BM(atkStack):H?(hp:y) L?(lostHp:y) B?(startNum:y);
@@ -95,6 +99,9 @@ ZVSE2
     !!VR(newNum):-1;
   !!en;
 
+  !!VR(hpDrained:y):S(newTotalHp) -(totalHp);
+  !!VR(resNum:y):S(newNum) -(atkNum);
+
   !!VR(newLostHp:y):S(hp) -(newCurrHp);
 
   ; Set up new number and hp for the Zombises
@@ -102,15 +109,15 @@ ZVSE2
 
   ; Show battle log and play animation/sound
   !!if&i^battle_isVisible^/(noHpLost)<>(TRUE);
-    ; Play sound and animation
-    !!SN:P^ANIMDEAD^;
-    !!BM(atkStack):V74;
-
     !!BM(atkStack):T?(type:y);
     !!VR(isPlural:y):S(atkNum) -1 B;
     !!SN:H^monname^/(type)/(isPlural)/?(flesheaterName:z);
-    !!SN:T^es.762.battleLog%(isPlural)^/?(battleLog:z)/^flesheater^/(flesheaterName)/^hp^/i^es_762_regenHp^;
+    !!SN:T^es.762.battleLog%(isPlural)^/?(battleLog:z)/^flesheater^/(flesheaterName)/^hp^/(hpDrained)/^resNum^/(resNum);
     !!MM:S(battleLog);
+    
+    ; Play sound and animation
+    !!SN:P^ANIMDEAD^;
+    !!BM(atkStack):V74;
   !!en;
 !!en;
 

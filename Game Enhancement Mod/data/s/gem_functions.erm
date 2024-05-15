@@ -65,8 +65,8 @@ ZVSE2
 !?FU(gem_GetRectCenter);
 !#VA(x:x) (y:x) (width:x) (height:x) (xPos:x) (yPos:x);
 
-!!VR(xPos):S(width) :2 -(x) *-1 F0/(INT_MAX);
-!!VR(yPos):S(height) :2 -(y) *-1 F0/(INT_MAX);
+!!VR(xPos):S(width) :2 -(x) *-1 F8/(INT_MAX);
+!!VR(yPos):S(height) :2 -(y) *-1 F8/(INT_MAX);
 
 !!UN:C(HD_X)/4/?(gameScreenWidth:y) C(HD_Y)/4/?(gameScreenHeight:y);
 
@@ -188,7 +188,7 @@ ZVSE2
 *********************** T E X T   H A N D L I N G **********************
 ************************************************************************
 ************************************************************************
-
+;TEXT HANDLING
 
 !?FU(gem_ExtractIntsFromText);                        [returns only integer numbers as int array elements from string]
   !#VA(strPtr:x);                       [Original string.]
@@ -441,6 +441,7 @@ ZVSE2
 ****************************** S Y S T E M *****************************
 ************************************************************************
 ************************************************************************
+; SYSTEM
 ; Get current game random seed for VR:R and ingame rands;
 !?FU(gem_GetRandomSeed);
 !#VA(seed:x);
@@ -452,16 +453,16 @@ ZVSE2
 !!VR(y:y):S167801 *i^battle_y^;
 !!VR(seed):S(x) +(y) +81569;
 
-!?FU(gem_SetRandomSeed);
-!#VA(newSeed:x) (oldSeed:x);
-!!UN:C6814692/4/?(oldSeed); C6814692/4/(newSeed);
-!!SN:E5294000/(CALLCONV_THISCALL)/(newSeed);
+*?FU(gem_SetRandomSeed);
+*#VA(newSeed:x) (oldSeed:x);
+*!UN:C6814692/4/?(oldSeed); C6814692/4/(newSeed);
+*!SN:E5294000/(CALLCONV_THISCALL)/(newSeed);
 
 ;Safely generate value without changing original seed
-!?FU(gem_SafeRand);
-!#VA(min:x) (max:x) (seed:x) (result:x);
-!!FU(gem_SetRandomSeed):P?(oldSeed:y);
-!!VR(result):Rd/(seed) R0/(min)/(max) Rd/(oldSeed);
+*?FU(gem_SafeRand);
+*#VA(min:x) (max:x) (seed:x) (result:x);
+*!FU(gem_SetRandomSeed):P(seed:x)/?(oldSeed:y);
+*!VR(result):Rd/(seed) R0/(min)/(max) Rd/(oldSeed);
 
 !?FU(gem_GetLocalTime);
 !#VA(year:x) (month:x) (weekDay:x) (day:x) (hour:x) (minute:x) (second:x) (mSecond:x);
@@ -513,6 +514,16 @@ ZVSE2
     !!VRj:Si +1;
     !!SN:E(funcAddr)/(CALLCONV_STDCALL)/xi/xj;
   !!en;
+!!en;
+
+!?FU(gem_New); // allocates Memory in bytes
+!#VA(size:x) (result:x);
+!!if&(size)>0;
+  !!SN:E6386834/(CALLCONV_CDECL)/(size);
+  !!VR(result):Sv1;
+!!el;
+  !!IF:M^ERROR! Number of the memory to allocate should be positive!^;
+  !!VR(result):S-1;
 !!en;
 
 
@@ -577,7 +588,6 @@ ZVSE2
     !!if&v1>0;
 
       !!VR(itemStructure:y):Sv1; [getItemStruture] item = (_Dlg_*)->GetItem(id)
-      *!FU:A?(numArgs:y);
 
       !!FU:S(@currentFrame)/?(cFSyntax:y) S(@whenPressedFrame)/?(wPFSyntax:y) S(@whenDisabledFrame)/?(wDFSyntax:y) S(@closeDlg)/?(closeDlgSyntax:y);
 

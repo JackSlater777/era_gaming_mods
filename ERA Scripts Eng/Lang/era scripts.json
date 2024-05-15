@@ -53,6 +53,7 @@
     },
     "es": {
         "endl": "\n",
+        "period": ". ",
         "basic": "Basic ",
         "advanced": "Advanced ",
         "expert": "Expert ",
@@ -102,8 +103,6 @@
             "battleLog": "{~g}Troop skill increased!{~}"
         },
         "737": {
-            "singDlg": "You captured the enemy's war machine!",
-            "plurDlg": "You captured the enemy's war machines!",
             "heroScr": "Do you wish to destroy the war machine?"
         },
         "739": {
@@ -123,6 +122,7 @@
             "desc3": "{Vial of Liveblood}\n\nIncreases the health of living creatures by 10%."
         },
         "744": {
+            "desc": "\nRepair @mon@ after battle",
             "dlg": "@hero@ has enough skill to repair the broken war machines. But repairs will take some time and require paying a local craftsmen.\n\nDo you want to repair the broken war machine(s)?"
         },
         "747": {
@@ -133,8 +133,8 @@
         },
         "750": {
             "desc": " Rage before attack.",
-            "battleLog0": "The @hornedDemon@ is furious!",
-            "battleLog1": "The @hornedDemon@ are furious!"
+            "battleLog0": "The @mon@ is furious!",
+            "battleLog1": "The @mon@ are furious!"
         },
         "751": {
             "desc1": "{Basic Necromancy}\n\nAnimate 15% of the hero's own combat casualties",
@@ -147,7 +147,7 @@
         },
         "753": {
             "desc": " Stunning attack.",
-            "battleLog": "@boar@ stunned the enemy!"
+            "battleLog": "@mon@ stunned the enemy!"
         },
         "756": {
             "name": "{Siegecraft}",
@@ -162,6 +162,7 @@
             "dlg2": "Dragon Utopia\n\nThere is a strengthened fort here that can be rebuilt into a castle and mages will surely rebuild the Dragon Library into a Mage Guild.",
             "ask": "\n\nDo you want to build a town here?",
             "notEnoughRes": "\n\nUnfortunately, you can't afford rebuilding the Dragon Utopia.",
+            "name0": "Dragonorb",
             "name1": "Dragonbone",
             "name2": "Dragonfang",
             "name3": "Dragontail",
@@ -191,7 +192,7 @@
         },
         "761": {
             "desc": " Reinforcement.",
-            "battleLog": "The defence of the @battleDwarf@ increases!"
+            "battleLog": "The defence of the @mon@ increases!"
         },
         "762": {
             "singName": "Flesheater",
@@ -222,6 +223,9 @@
             "singEncounter": "As you approach the @mon@, you can see that it's jealously guarding the {@art@}!",
             "plurEncounter": "As you approach the @mon@, you can see that they're jealously guarding the {@art@}!",
             "leave": "Now, with the threat eliminated, @hero@ obtains:"
+        },
+        "770": {
+            "msg": "@tyrant@ player has become the tyrant, owning all the neutral towns, mines, and level 1-4 dwellings in this land."
         },
         "773": {
             "desc1": "{Basic Navigation}\n\n+10% water movement\nReduces the cost of boarding/landing by 100 MP",
@@ -285,8 +289,9 @@
             "opt": "@num@ @mon@ (@gold@ gold per day)"
         },
         "786": {
-            "desc": "\n\nReduces hiring or upgrade cost for creatures from map objects up to @percent1@% (gold only)\nReduces the surrender price by @percent2@%",
-            "scholar": "\nReduces the cost of training from a scholar by @percent@%"
+            "descA": "\n\nReduces hiring or upgrade cost for creatures from map objects up to @percent1@% (gold only)",
+            "descB": "Reduces the surrender price by @percent2@%",
+            "scholar": "Reduces the cost of training from a scholar by @percent@%"
         },
         "787": {
             "desc": "\n\nAllows you to additionally restore spell points:\n\nUp to @percent1@% (minimum of @min1@) per night when outside a town\nUp to @percent2@% (minimum of @min2@) when visiting a magic well or spending the night in a town with a Mage Guild",
@@ -299,13 +304,13 @@
             "creaSpec": "{Creature Specialist}\n\nWith changes to the hero's specialization, creatures now recieve some bonuses to stats.",
             "skillMaster": "{Skill Master}\n\nThe hero's specialization can now be used more effectively.",
             "creaTrainer": "{Creature Trainer}\n\nThe hero can improve troops further.\n{@mon1@ and @mon2@}> {@upg@}",
-            "supplier1": "{Supplier}\n\nThe hero now brings {1} additional resource daily (related to specialization) to the town treasury.",
-            "supplier2": "{Supplier}\n\nThe hero now brings {350 gold} to the town treasury in addition to daily income.",
+            "supplier0": "{Supplier}\n\nThe hero now brings {1} additional resource daily (related to specialization) to the town treasury.",
+            "supplier1": "{Supplier}\n\nThe hero now brings {350 gold} to the town treasury in addition to daily income.",
             "scholarOfDeath": "{Scholar of Death}\n\nThe hero can improve troops further with {Necromancy}.\n{@mon1@ and @mon2@}> {@upg@}",
-            "auraOfCurse1": "{Aura Curse}\n\nThe hero is given a curse that halves the {attack} of all units on the battlefield.",
-            "auraOfCurse2": "{Aura Curse}\n\nThe hero is given a curse that halves the {defense} of all units on the battlefield.",
-            "auraOfCurse3": "{Aura Curse}\n\nThe hero is given a curse that forces all units on the battlefield to only deal {minimal damage}.",
-            "auraOfCurse4": "{Aura Curse}\n\nThe hero is given a curse that halves the {speed} of all units on the battlefield.",
+            "auraOfCurse0": "{Aura Curse}\n\nThe hero is given a curse that halves the {attack} of all units on the battlefield.",
+            "auraOfCurse1": "{Aura Curse}\n\nThe hero is given a curse that halves the {defense} of all units on the battlefield.",
+            "auraOfCurse2": "{Aura Curse}\n\nThe hero is given a curse that forces all units on the battlefield to only deal {minimal damage}.",
+            "auraOfCurse3": "{Aura Curse}\n\nThe hero is given a curse that halves the {speed} of all units on the battlefield.",
             "reborn": "\n\n{~r}Reborn Hero{~}",
             "battleLog": "{The aura of an ancient curse affects all units.}"
         },
@@ -341,8 +346,8 @@
                 "disappear": "{A squad of Assassins dissolves into the shadows!}",
                 "noUnits": "This hero is not accompanied by {Assassins}.\n\nWe might have to track some down.",
                 "header": "This hero is accompanied by a detachment of loyal {Assassins}.\n\nAmount: @num@ units.",
-                "allow": "Assassins are {allowed} to participate in battles\n\nAllow Assassins to participate in battles?",
-                "restrict": "Assassins are {not allowed} to participate in battles.\n\nAllow Assassins to participate in battles?",
+                "allow": "Assassins are {allowed} to participate in battles\n\nDo you want to disallow Assassins from participating in battles?",
+                "restrict": "Assassins are {not allowed} to participate in battles.\n\nDo you want to allow Assassins to participate in battles?",
                 "capture": "Assassins of the defeated enemy request the hero to use their lives in exchange for gold or loyalty."
             }
         },
@@ -396,8 +401,17 @@
             "ask2": "How many skill points to add?",
             "avail": "(Available skill points: @points@)"
         },
+        "882": {
+            "desc": "\n\n{Skeleton guardian}: ",
+            "ability": {
+                "0": "No retaliation",
+                "1": "Strikes twice",
+                "2": "Attack all around"
+            }
+        },
         "995": {
-            "kill": "{~0F2223E}Death Stare{~} deals @dmg@ damage. @killed@ creatures die."
+            "hint": "Ranged Death Stare (damage: @dmg@ damage, kills: @kill@)",
+            "battleLog": "Death Stare deals @dmg@ damage. @kill@ creatures die."
         },
         "996": {
             "desc": " First strike."

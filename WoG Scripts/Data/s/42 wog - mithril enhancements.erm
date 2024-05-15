@@ -56,15 +56,15 @@ Mithril Enhancements Price List
  - may improve a hero's Basic skills: 4 Mithril
 
 
-If you want to change the frequency, change the number 15 below to how often you want mithril to
-appear. If you set it to 4, one in four stacks will be replaced, and so on(if set to 1 or lower,
-or 50 or higher, it will default to 15):
-!#DC(WOG_170_RESOURCES_CAMPFIRES_FREQUENCY) = 15;
+If you want to change the frequency, change the number 16 below to how often you want mithril to
+appear. If you set it to 4, one in four stacks will be replaced, and so on:
+!#DC(WOG_170_RESOURCE_FREQUENCY) = 18;
+!#DC(WOG_170_CAMPFIRE_FREQUENCY) = 18;
 
 
 If you want to change the frequency, change the number 10 below to how often you want mithril to
-appear(if set to 1 or lower, or 50 or higher, it will default to 10):
-!#DC(WOG_171_MILLS_GARDENS_FREQUENCY) = 10;
+appear:
+!#DC(WOG_171_MILL_GARDEN_FREQUENCY) = 12;
 
 Mithril Display scripts shows a message when a player picks up a pile of Mithril, showing how much
 Mithril that pile contained, and how much Mithril the player has right now. It also shows how much
@@ -84,6 +84,7 @@ FU(WOG_36_UpgradeDwelling_1)-FU8189
 Sets up PO:N numbers at University, Mine, Water Wheel and Windmill
 entrance squares. Do not use this with another script that might do the same
 
+!#VRi^wog_149_legacyHD_on^:S(FALSE);    [Switch for old version of HD mod]
 
 
 *--- Setup ---*
@@ -101,7 +102,19 @@ entrance squares. Do not use this with another script that might do the same
   !!en;
 !!en;
 
+!!if&i^wog_170_enabled^;
+  !!VRi^wog_170_%(OBJ_RESOURCE)_maxStep^:S(WOG_170_RESOURCE_FREQUENCY) *2 -1;
+  !!VRi^wog_170_%(OBJ_CAMPFIRE)_maxStep^:S(WOG_170_CAMPFIRE_FREQUENCY) *2 -1;
+!!en;
+
 !#FU(WOG_36_Initialization):P;
+
+!?FU(OnAfterErmInstructions);
+!!VRi^wog_170_%(OBJ_RESOURCE)_maxStep^:S0;
+!!VRi^wog_170_%(OBJ_CAMPFIRE)_maxStep^:S0;
+!!VRi^wog_170_%(OBJ_RESOURCE)_interval^:S0;
+!!VRi^wog_170_%(OBJ_CAMPFIRE)_interval^:S0;
+
 
 *** Display Mithril on Rightclick on Kingdom Overview ***
 !?FU(OnAdventureMapRightMouseClick)&i^mouse_item^=(ITEM_ADVMAP_KINGDOM_OVERVIEW_BTN)/i^wog_149_enabled^;
@@ -135,29 +148,32 @@ entrance squares. Do not use this with another script that might do the same
 !?OB(OBJ_RESOURCE)/(RES_MITHRIL)&999;  [Mithril is trigger]
   !!UN:B0/?(isMithrilEnabled:y);
 
-  !!if&(isMithrilEnabled:y);                                                                 [(If Mithril display is disabled, end function)]
-    !!AR(CURRENT_OBJ):V?(resAmount:y); 
-    !!UN:C(ADV_MANAGER)/4/?(advMgr:y);
-    !!SN:E4284352/(CALLCONV_THISCALL)/(advMgr)/^%T(wog.36.pickup)^/(RES_MITHRIL)/(resAmount);
+  !!AR(CURRENT_OBJ):V?(resAmount:y); 
+  !!UN:C(ADV_MANAGER)/4/?(advMgr:y);
 
-    *!if&i^WOG_IsHdMod^;
-      *!VRi^WOG_149_mithril_pickup^:S(TRUE);
-      *!SN:E4284352/(CALLCONV_THISCALL)/(advMgr)/(mithrilText)/(RES_GOLD)/(resAmount);
-    *!el;
-    *!en;
+  !!if&(isMithrilEnabled:y);                                                                 [(If Mithril display is disabled, end function)]
+    ; Legacy mode
+    !!if&i^wog_149_legacyHD_on^;
+      !!VRi^WOG_149_mithril_pickup^:S(TRUE);
+      !!SN:E4284352/(CALLCONV_THISCALL)/(advMgr)/^%T(wog.36.pickup)^/(RES_GOLD)/(resAmount);
+      
+    ; Current method
+    !!el;
+      !!SN:E4284352/(CALLCONV_THISCALL)/(advMgr)/^%T(wog.36.pickup)^/(RES_MITHRIL)/(resAmount);
+    !!en;
   !!en;
 
 
-*?OB(OBJ_RESOURCE)/(RES_GOLD)&999;  [Mithril is trigger]
-*!VRi^WOG_149_mithril_pickup^:S(FALSE);
+!?OB(OBJ_RESOURCE)/(RES_GOLD)&999;  [Mithril is trigger]
+!!VRi^WOG_149_mithril_pickup^:S(FALSE);
 
-*?FU(WOG_OnChangeWindowByResources)&i^WOG_149_mithril_pickup^/i^WOG_IsHdMod^;;
+!?FU(WOG_OnChangeWindowByResources)&i^WOG_149_mithril_pickup^;
 451087
-  *!UN:Cx1/216/(SIZEOF_INT32)/?(resType:y);                                  [is equal to line below]
+  !!UN:Cx1/216/(SIZEOF_INT32)/?(resType:y); [is equal to line below]
 
-  *!if&(resType)=(RES_GOLD);
-    *!UN:Cx1/216/(SIZEOF_INT32)/(RES_MITHRIL);                                  [is equal to line below]
-  *!en;
+  !!if&(resType)=(RES_GOLD);
+    !!UN:Cx1/216/(SIZEOF_INT32)/(RES_MITHRIL); [is equal to line below]
+  !!en;
 
 *** Adventure map Objects ***
 ; Right-click on the entrance of an object OR Ctrl-click on an object
@@ -165,15 +181,15 @@ entrance squares. Do not use this with another script that might do the same
   !!TRi^mouse_mapX^/i^mouse_mapY^/i^mouse_mapZ^:E?(isNotYellow:y);              [Check for yellow trigger square: y-20]
   !!FU&(isNotYellow):E;
 
-  !!FU(WOG_36_EnhanceWithMithril):P?(dlgShown:y);
+  !!FU(WOG_36_EnhanceWithMithril):P0/?(dlgShown:y);
   !!SN&(dlgShown):Q;
 
 !?FU(OnAdventureMapLeftMouseClick)&999/i^mouse_item^=(ITEM_ADVMAP_ADVENTURE_MAP)/i^key_ctrl^;
-  !!FU(WOG_36_EnhanceWithMithril):P?(dlgShown:y);
+  !!FU(WOG_36_EnhanceWithMithril):P1/?(dlgShown:y);
   !!SN&(dlgShown):Q;
 
 !?FU(WOG_36_EnhanceWithMithril);
-  !#VA(dlgShown:x);
+  !#VA(mode:x) (dlgShown:x);
 
   !!VR(dlgShown):S(FALSE);
 
@@ -184,12 +200,15 @@ entrance squares. Do not use this with another script that might do the same
   !!SN:O?v4/?v5/?v6;                    [Get entrance]
   !!OB4:T?(type:y);                     [Get type of object]
 
-  ; If there is a hero on the coordinate we clicked, check the real object type by hiding the hero temporarily.
+  ; If there is a hero on the coordinate we clicked, check the real object type by hiding the hero temporarily (if not right-click).
   !!if&(type)=(OBJ_HERO);
+    ; Exit if it it is a right-click
+    !!FU&(mode)=0:E;
+
     !!HEv4/v5/v6:Z?(heroStruct:y);
     !!UN:C(heroStruct)/12/(UNC_INT)/?(type:y) C(heroStruct)/16/(UNC_INT)/?(subtype:y) C(heroStruct)/20/(UNC_INT)/?(controlWord:y); [Get object details underneath the hero]
   !!el;
-    !!OB4:U?(subtype:y);                  [Get Subtype]
+    !!OB4:U?(subtype:y);                [Get Subtype]
     !!OB4:C?(controlWord:y);
   !!en;
 
@@ -245,15 +264,11 @@ entrance squares. Do not use this with another script that might do the same
     !!en;
 
     ; Objects
-
     !!FU(WOG_36_UpgradeObject)|(type)=(OBJ_WINDMILL)/(type)=(OBJ_WATER_WHEEL):P?(dlgShown)/(type)/5; [Windmill][Water Wheel]
     !!FU(WOG_36_UpgradeObject)|(type)=(OBJ_UNIVERSITY):P?(dlgShown)/(type)/4;                        [University]
 
-
-
-    !!FU(WOG_36_CheckMonolithExit)&(type)=(OBJ_MONOLITH_ONE_WAY_ENTRANCE):P1/(CURRENT_HERO);
-    !!FU(WOG_36_CheckMonolithExit)&(type)=(OBJ_MONOLITH_TWO_WAY):P2/(CURRENT_HERO); [Monolith (with instruction on which type and what hero]
-
+    !!FU(WOG_36_CheckMonolithExit)&(type)=(OBJ_MONOLITH_ONE_WAY_ENTRANCE):P(OBJ_MONOLITH_ONE_WAY_EXIT)/(subtype);
+    !!FU(WOG_36_CheckMonolithExit)&(type)=(OBJ_MONOLITH_TWO_WAY):P(OBJ_MONOLITH_TWO_WAY)/(subtype); [Monolith (with instruction on which type and what hero]
 
     !!FU(WOG_36_ChangeWitchHutSkill)&(type)=(OBJ_WITCH_HUT):P(type)/2; [Witch Hut]
 
@@ -267,13 +282,13 @@ entrance squares. Do not use this with another script that might do the same
   !!UN&(mithrilAfter)<>(mithrilBefore):R2; [addon by daemon_n for plugin]
 
 *** Upgrade Dwelling ***
+; Object Type 17
 !?FU(WOG_36_UpgradeDwelling_1);
 !#VA(dwellingType:x);
 
 !!FU(WOG_36_GetDwellingUpgradeDetails):P?(mon:y)/?(upgMon:y)/?(number:y)/?(cost:y);
 
-!!if&(cost);[Only upgrading once is allowed even if mod supported as for balance concern]
-
+!!if&(cost);
   !!CM:R0;                                [disable standard popup]
   !!SN:H^monname^/(upgMon)/1/?(upgMonName:z);         [Get new creature name- plural]
   !!SN:H^monname^/(mon)/1/?(monName:z);            [Get old creature name- plural]
@@ -282,7 +297,8 @@ entrance squares. Do not use this with another script that might do the same
   !!FU(WOG_GameMgr_GetDwellingName):P(OBJ_CREATURE_GENERATOR_1)/(dwellingType:x);/?(objName:z);
 
   !!SN:T^wog.36.dwelling.%n^/?(msg:z)/^objName^/s^result^/^monName^/(monName)/^upgMonName^/(upgMonName)/^cost^/(cost)/^number^/(number);
-  !!IF:Q1/(RES_MITHRIL)/(cost:y)/(MSG_TYPE_QUESTION)/(msg:z);               
+  !!IF:Q1/(RES_MITHRIL)/(cost:y)/(MSG_TYPE_QUESTION)/(msg:z);
+
   !!if&1;
     !!OW:R(CURRENT_PLAYER)/(RES_MITHRIL)/d-(cost:y);               (take Mithril)
     !!DW4:M0/(upgMon)/d; (Upgrade dwelling)
@@ -290,15 +306,16 @@ entrance squares. Do not use this with another script that might do the same
 
 !!en;
 
+; Object Type 20 - only Elemental Conflux is supported
+; Only upgrading once is allowed even if mod supported as for balance concern
 !?FU(WOG_36_UpgradeDwelling_2);
 !#VA(upgMon[4]:y);
 
 !!FU(WOG_36_GetDwellingUpgradeDetails):P?(mon:y)/?(upgMon[0])/?(number:y)/?(canUpgrade:y);
 
-!!if&(canUpgrade)/(mon)<>(MON_AIR_ELEMENTAL);[Only upgrading once is allowed even if mod supported as for balance concern]
-
+!!if&(canUpgrade)/(mon)=(MON_AIR_ELEMENTAL); [Check if the first slot is Air Elemental to know whether the dwelling has been upgraded once]
   !!CM:R0;         (disable standard popup)
-  !!SN:T^wog.36.upgrade.elementalConflux^/?(msg:z)/^number^/(number:y);
+  !!SN:T^wog.36.dwelling.elementalConflux^/?(msg:z)/^number^/(number:y);
   !!IF:Q1/(PIC_TYPE_RES_MITHRIL)/4/(MSG_TYPE_QUESTION)/(msg:z);
 
   !!if&1;
@@ -332,7 +349,7 @@ entrance squares. Do not use this with another script that might do the same
 ; Check for upgrade of the creature
 !!DW4:M0/?(mon)/d;
 !!FU(GetUpgradedMonster):P(mon)/?(upgMon);
-!!FU&(upgMon)=(NO_MON):E;
+!!FU|(upgMon)=(NO_MON)/(mon)=(upgMon):E;
 
 ; Exit if the upgraded monster has a different level with the original
 !!MA:L(mon)/?y36 L(upgMon)/?y37;
@@ -453,8 +470,8 @@ entrance squares. Do not use this with another script that might do the same
   !!re i;
     !!UN:U(OBJ_MYSTICAL_GARDEN)/(ANY_OBJ)/-1/(x)/(y:y)/(z:y);
     !!br&(x)<0;
-    !!VRr:R0/1/(WOG_171_MILLS_GARDENS_FREQUENCY);
-    !!if&r=(WOG_171_MILLS_GARDENS_FREQUENCY);
+    !!VRr:R0/1/(WOG_171_MILL_GARDEN_FREQUENCY);
+    !!if&r=(WOG_171_MILL_GARDEN_FREQUENCY);
       !!GD(x)/(y)/(z):B(RES_MITHRIL);            [add mithril]
     !!en;
   !!en;
@@ -467,7 +484,7 @@ entrance squares. Do not use this with another script that might do the same
 
     !!if&(isUpgraded:y);
       !!WM(x)/(y)/(z):Bd*2;                           [(Water Wheel now contains new value)]
-      !!PO(x)/(y)/(z):N0;                             [(reset upgrade)]
+      *!PO(x)/(y)/(z):N0;                             [(reset upgrade)] - in WoG 3.58f it did not reset
     !!en;
   !!en;
 
@@ -475,59 +492,67 @@ entrance squares. Do not use this with another script that might do the same
   !!re i;
     !!UN:U(OBJ_WINDMILL)/(ANY_OBJ)/-1/(x)/(y:y)/(z:y);
     !!br&(x)<0;
-    !!VRr:R0/1/(WOG_171_MILLS_GARDENS_FREQUENCY);
-    !!if&r=(WOG_171_MILLS_GARDENS_FREQUENCY);
+    !!VRr:R0/1/(WOG_171_MILL_GARDEN_FREQUENCY);
+    !!if&r=(WOG_171_MILL_GARDEN_FREQUENCY);
       !!ML(x)/(y)/(z):B(RES_MITHRIL)/d;               [(Water Wheel now contains new  mithril)]
     !!en;
 
     !!PO(x)/(y)/(z):N?(isUpgraded:y);                 [(Get PO number at position)]
     !!if&(isUpgraded:y);
       !!ML(x)/(y)/(z):Bd/d*2;                         [(Water Wheel now contains new value)]
-      !!PO(x)/(y)/(z):N0;                             [(reset upgrade)]
+      *!PO(x)/(y)/(z):N0;                             [(reset upgrade)] - in WoG 3.58f it did not reset
     !!en;
   !!en;
 
+
+!?FU(WOG_OnIterateAllMapObjects)&i^wog_170_enabled^;
+!#VA(x:x) (y:x) (z:x);
+!#VA(objType:x);
+!#VA(objSubtype:x);
+!#VA(isYellowSquare:x); boolean.
+!#VA(isPassable:x);     boolean.
+
+; check: is entry to the object
+!!FU&(isYellowSquare)<>(TRUE):E;
+; Exit if not resouce or campfire
+!!FU&(objType)<>(OBJ_RESOURCE)/(objType)<>(OBJ_CAMPFIRE):E;
+
+!!VR(mithrilPlaced:y):S(FALSE);
+
+!!if&i^wog_36_%(objType)_interval^<=0;
+  !!if&(objType:x)=(OBJ_RESOURCE);
+    !!AR(x)/(y)/(z):V?n;
+
+    ; Replace only when the amount of the resource pile is reasonable
+    ; Archer30: AR:R, AR:G, AR:X are hardly useful here, there are syntax error as of ERA 3.9.10
+    !!if&n>=2/n<=9;
+      ; Divide by 2 Then add 1 to get the same amount range as other stacks if wood, ore or gold
+      !!if|(objSubtype:x)=(RES_ORE)/(objSubtype:x)=(RES_WOOD)/(objSubtype:x)=(RES_GOLD);
+        !!VRn::2 +1;
+      !!en;
+
+      !!UN:O(x)/(y)/(z)/1/0 I(x)/(y)/(z)/(OBJ_RESOURCE)/(RES_MITHRIL); [Delete old resource pile, place Mithril]
+      !!AR(x)/(y)/(z):Vn;               [set new amount]
+      !!VR(mithrilPlaced):S(TRUE);
+    !!en;
+
+  !!el&(objType:x)=(OBJ_CAMPFIRE);
+    !!FR(x)/(y)/(z):B?r/?n B(RES_MITHRIL)/n; [Get resource and amount)(Setup to contain Mithril]
+    !!VR(mithrilPlaced):S(TRUE);
+  !!en;
+!!en;
+
+; If object has added mithril, get the next object of the same type to be dealt with
+!!if&(mithrilPlaced);
+  !!VRi^wog_36_%(objType)_interval^:R0/0/i^wog_170_%(objType)_maxStep^;
+; If object was not dealt with, minus one on the global var
+!!el;
+  !!VRi^wog_36_%(objType)_interval^:-1;
+!!en;
 
 !?FU(OnAfterErmInstructions)&i^wog_170_enabled^;
-
-!!FU(WOG_170_ReplaceResourcesAndCampfires):P;
-
-!?FU(WOG_170_ReplaceResourcesAndCampfires);
-
-!!UN:U(OBJ_RESOURCE)/-1/?(objNumber:y);  (Get number of resource piles on map (for replacing with Mithril))
-
-
-!!UN:C(SOUND_MANAGER)/4/?(sndMgr:y) C(sndMgr)/132/4/?s C(sndMgr)/132/4/0; [block snd mag to remove objects w/o crash]
-
-!!VRe1:S(objNumber) :100 *(WOG_171_MILLS_GARDENS_FREQUENCY);
-!!VR(rndStep:y):Se1;
-!!VR(start:y):S1 R(rndStep);            [set random start pile]
-!!re i/(start:y)/(objNumber);
-  !!UN:U(OBJ_RESOURCE)/-1/i/2;
-  !!OB2:U?t;
-  !!AR2:V?n;
-  !!if&n>1/n<10;
-    !!if|t=(RES_ORE)/t=(RES_WOOD)/t=(RES_GOLD); [( if wood, ore or gold)]
-      !!VRn:Sd>>1 +1;                   [(Divide by 2 Then add 1 to get the same amount range as other stacks)]
-    !!en;
-    !!UN:Ov2/v3/v4/1/0 Iv2/v3/v4/(OBJ_RESOURCE)/(RES_MITHRIL); [(Delete old resource pile)(place Mithril)]
-    !!ARv2/v3/v4:Vn;                    [(set new amount)]
-    !!VRi:R(rndStep);                   [go next if success]
-  !!en;
-!!en;
-!!UN:C(sndMgr)/132/4/s;                 [restore snd mgr]
-
-!!UN:U(OBJ_CAMPFIRE)/-1/?(objNumber:y); [(Get number of OBJ_CAMPFIRE on map (for replacing with Mithril))]
-!!VRe1:S(objNumber) :100 *(WOG_171_MILLS_GARDENS_FREQUENCY);
-!!VR(rndStep:y):Se1;
-!!VR(start:y):S1 R(rndStep);            [set random start pile]
-!!re i/(start:y)/(objNumber);           [(Cycle through all Campfires, replace one in what value (WOG_170_RESOURCES_CAMPFIRES_FREQUENCY) holds)]
-  !!UN:U(OBJ_CAMPFIRE)/-1/i/2;
-  !!FRv2/v3/v4:B?r/?n B(RES_MITHRIL)/n; [(Get resource and amount)(Setup to contain Mithril)]
-  !!VRi:R(rndStep);
-!!en;
-
-
+!!VRi^wog_170_%(OBJ_RESOURCE)_num^:S(NULL);
+!!VRi^wog_170_%(OBJ_CAMPFIRE)_num^:S(NULL);
 
 *** Upgrade Shrines ***
 !?FU(WOG_36_ChangeShrineSpell);
@@ -610,7 +635,7 @@ entrance squares. Do not use this with another script that might do the same
 
 *** Witch Hut ***
 !?FU(WOG_36_ChangeWitchHutSkill);
-!#VA(objType:x)(cost:x); 
+!#VA(objType:x) (cost:x); 
 
 !!OW:R(CURRENT_PLAYER)/(RES_MITHRIL)/?(number:y);        (Get amount of mithril)
 
@@ -618,7 +643,7 @@ entrance squares. Do not use this with another script that might do the same
   !!WHv4/v5/v6:S?(currentSkill:y); (Get skill)
   !!if&(currentSkill)<>(NO_SKILL);
     
-    !!FU(WOG_36_GetAllowedSkillsList):P?(skills:y);
+    !!FU(WOG_36_GetAllowedSkillsList):P(currentSkill)/?(skills:y);
     !!SN:M(skills)/?(size:y);
 
     !!if&(size);; Exit if the secondary skill is banned
@@ -644,16 +669,21 @@ entrance squares. Do not use this with another script that might do the same
 !!en;
 
 !?FU(WOG_36_GetAllowedSkillsList);
-!#VA(skills:x);
+!#VA(currentSkill:x) (skills:x);
 
 !!FU(NewIntArray):P?(skills);
+
 !!re i/0/(SEC_SKILL_LAST);
-  !!co&i=(currentSkill:y);
+
+  !!co&i=(currentSkill);
+
   !!FU(WOG_GameMgr_Skill_isBanned):Pi/?(isBanned:y);
+
   !!if&(isBanned)=(FALSE);
     !!FU(Array_Push):P(skills)/i;
   !!en;
 !!en;
+
 !!SN:F^ExtendArrayLifetime^/(skills:x);
 
 
@@ -677,7 +707,7 @@ entrance squares. Do not use this with another script that might do the same
     !!IF:Q1/(RES_MITHRIL)/(cost)/(MSG_TYPE_QUESTION)/(msg:z);
 
     !!if&1;
-      !!OW:R-1/(RES_MITHRIL)/d-(cost);
+      !!OW:R(CURRENT_PLAYER)/(RES_MITHRIL)/d-(cost);
       !!POv4/v5/v6:N2;                                                         [(setup so it's upgraded)]
     !!en;
   !!en;
@@ -711,34 +741,51 @@ entrance squares. Do not use this with another script that might do the same
 
 *** Monoliths ***
 !?FU(WOG_36_CheckMonolithExit);
-!!OW:R-1/7/?y2;    (Get amount of mithril)
+!#VA(objType:x) (objSubtype:x);
+
+!!OW:R(CURRENT_PLAYER)/(RES_MITHRIL)/?y2;    (Get amount of mithril)
 !!FU&y2<1:E;   (Check if enough Mithril)
-!!VRz1&x1=1:Sz136047;
-!!VRz1&x1=2:Sz136048;
-!!HEx2:B0/?z2; (get hero name)
-!!HEx2:R2/?y1;
-!!VRz3&y1=0:Sz136049;
-!!VRz3&y1=1:Sz136050;
+
+!!VRz1&(objType)=(OBJ_MONOLITH_ONE_WAY_EXIT):Sz136047;
+!!VRz1&(objType)=(OBJ_MONOLITH_TWO_WAY):Sz136048;
+!!OW:A(CURRENT_PLAYER)/?(hero:y);
+!!HE(hero):B0/?z2; (get hero name)
+!!HE(hero):R2/?(gender:y);
+!!SN:T^wog.who%(gender)^/?z3;
 
 !!CM:R0; (disable standard popup)
 !!IF:Q1/z136051;
 !!FU&-1:E;
 
-!!OW:R-1/7/d-1;   (Take Mithril)
-!!VRv1&x1=1:S44;
-!!UN:Uv1/v2/?y2;  (get number of liths)
-!!DO8186/1/y2/1:P;(loop through liths)
+!!OW:R(CURRENT_PLAYER)/(RES_MITHRIL)/d-1;   (Take Mithril)
 
-!?FU8186;
-!!UN:Uv1/v2/x16/3;   (Get coords of monolith)
-!!OW:C?y1;           (Get current player)
-!!UN:Sv3/v4/v5/y1/2; (open shroud)
-!!UN:Lv3/v4/v5/1500; (Center view for 1.5s - Archer)
+!!VR(x:y):S-1;
+!!VR(lithFound:y):S(FALSE);
 
+; loop through all the liths
+!!re i;
+  !!UN:U(objType)/(objSubtype)/-1/(x)/(y:y)/(z:y);
+  !!br&(x)<0;
+
+  ; Skip the clicked two way monolith
+  !!co&(objType)=(OBJ_MONOLITH_TWO_WAY)/(x)=v4/(y)=v5/(z)=v6;
+
+  !!UN:S(x)/(y)/(z)/(CURRENT_PLAYER)/2; [open shroud]
+  !!UN:L(x)/(y)/(z)/1500;               [Center view for 1.5s]
+  !!VR(lithFound):S(TRUE);
+!!en;
+
+; Move the camera back
+!!if&(lithFound);
+  !!VR(currX:y):Sv4 -i^wog_screenOffsetX^;
+  !!VR(currY:y):Sv5 -i^wog_screenOffsetY^;
+  !!UN:L(currX)/(currY)/v6/10;          [move back]
+!!en;
 
 !$OB104/0;                   (post-visit trigger for Universities)
 !!POv998/v999/v1000:N?y-5;   (check if Advanced University)
 !!FU&y-5<>2:E;               (exit trigger if not an Advanced University)
+
 !!VRy-1:S28; !!VRy-2:S28;    (set skill variables out of range)
 !!VRy-3:S0;                  (init trigger-based var y-3)
 !!IF:V2/0;                   (init flag 2)
@@ -785,7 +832,7 @@ entrance squares. Do not use this with another script that might do the same
 !!OW&y-1<28:R-1/6/d-3000;    (pay 3000 gold)
 
 !?FU(WOG_CreateERMHook)&i^wog_36_enabled^;
-!!SN:Ex1/1/4249128/(WOG_HOOK_GetMineDescription);
+*!SN:Ex1/1/4249128/(WOG_HOOK_GetMineDescription); [Archer30: This hook is disabled due to incompatile with Asian lang]
 
 
 !!SN:Ex1/1/4239726/(WOG_HOOK_OnObjectHintGetType);
@@ -817,18 +864,19 @@ entrance squares. Do not use this with another script that might do the same
 !!en;
 !!VRi^wog_36_rmc_hint_object_type^:S0;
 
-!?FU(WOG_HOOK_GetMineDescription);
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDX)/4/?(mine:y);
-!!UN:C(mine)/60/-1/?j C(mine)/61/-1/?k C(mine)/62/-1/?l;
-!!POj/k/l:N?n;
-!!if&n;            [if true]
-  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/?(ebx:y); [get current description]
-  !!SN:T^wog.36.mine.upgrade%i(wog_101_map_rule_11_isEnabled)^/?(msg:z) B(ebx:y)/d/?z1 B(ebx)/d/^%(msg:z)%z1^;;B(ecx)/d/?z2;
-!!en;
+; Archer30: This hook is disabled due to incompatile with Asian lang
+*?FU(WOG_HOOK_GetMineDescription);
+*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDX)/4/?(mine:y);
+*!UN:C(mine)/60/-1/?j C(mine)/61/-1/?k C(mine)/62/-1/?l;
+*!POj/k/l:N?n;
+*!if&n;            [if true]
+  *!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/?(ebx:y); [get current description]
+  *!SN:T^wog.36.mine.upgrade%i(wog_101_map_rule_11_isEnabled)^/?(msg:z) B(ebx:y)/d/?(objName:z) B(ebx)/d/^%(msg:z)%(objName)^;;B(ecx)/d/?z2;
+*!en;
 
 !?FU(WOG_HOOK_OnObjectHintGetType)&i^wog_36_enabled^;
 !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/?(ebx:y) C(ebx)/30/2/?t;(objType:y);
-!!if|t=(OBJ_UNIVERSITY)/t=(OBJ_WATER_WHEEL)/t=(OBJ_WINDMILL);
+!!if|t=(OBJ_UNIVERSITY)/t=(OBJ_WATER_WHEEL)/t=(OBJ_WINDMILL)/t=(OBJ_MINE);
   !!VRi^wog_36_hint_object_type^:St;
 !!en;
 
@@ -839,9 +887,13 @@ entrance squares. Do not use this with another script that might do the same
 !!if&(isUpgraded);
   !!MM:M?(currHint:z); ^%(newHint)^;
   !!VRt:Si^wog_36_hint_object_type^;
-  !!SN:T^wog.36.hint.%t^/?(upg:z);
-  !!MM:M^%(upg:z)%(currHint:z)^;
+
+  !!if|t=(OBJ_UNIVERSITY)/t=(OBJ_WATER_WHEEL)/t=(OBJ_WINDMILL);
+    !!SN:T^wog.36.hint.%t^/?(prefix:z);
+  !!el&t=(OBJ_MINE);
+    !!SN:T^wog.36.mine.upgrade%i(wog_101_map_rule_11_isEnabled)^/?(prefix:z);
+  !!en;
+
+  !!MM:M^%(prefix:z)%(currHint:z)^;
 !!en;
 !!VRi^wog_36_hint_object_type^:S0;
-
-

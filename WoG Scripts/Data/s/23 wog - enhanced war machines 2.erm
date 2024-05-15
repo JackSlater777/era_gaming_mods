@@ -37,32 +37,32 @@ ZVSE2
 !#UN:P(WOG_OPT_ENHANCED_WAR_MACHINES_II)/?i^wog_55_enabled^; [check if Enhanced Warmachines is enabled in WoGify Options]
 
 !?FU(OnAfterErmInstructions)&i^wog_55_enabled^;
-  !!MA:M(MON_BALLISTA)/4 E(MON_BALLISTA)/6 C(MON_BALLISTA)/(RES_GOLD)/1000; [Ballista Dam Low 4/ Dam High 6/ Cost 1000]
-  !!MA:P(MON_FIRST_AID_TENT)/150 C(MON_FIRST_AID_TENT)/(RES_GOLD)/1000; [First Aid Tent HP 150/ Cost 1000]
-  !!MA:P(MON_AMMO_CART)/150 C(MON_AMMO_CART)/(RES_GOLD)/1000; [Ammo Cart HP 150/Cost 1000]
+!!MA:M(MON_BALLISTA)/4 E(MON_BALLISTA)/6 C(MON_BALLISTA)/(RES_GOLD)/1000; [Ballista Dam Low 4/ Dam High 6/ Cost 1000]
+!!MA:P(MON_FIRST_AID_TENT)/150 C(MON_FIRST_AID_TENT)/(RES_GOLD)/1000; [First Aid Tent HP 150/ Cost 1000]
+!!MA:P(MON_AMMO_CART)/150 C(MON_AMMO_CART)/(RES_GOLD)/1000; [Ammo Cart HP 150/Cost 1000]
 
-  !!SN:H^monname^/(MON_CATAPULT)/0/?(single:z) H^monname^/(MON_CATAPULT)/1/?(plural:z);
-  !!SN:H^monname^/(MON_NOT_USED_2)/0/(single) H^monname^/(MON_NOT_USED_2)/1/(plural);
+!!SN:H^monname^/(MON_CATAPULT)/0/?(single:z) H^monname^/(MON_CATAPULT)/1/?(plural:z);
+!!SN:H^monname^/(MON_NOT_USED_2)/0/(single) H^monname^/(MON_NOT_USED_2)/1/(plural);
 
-  ; Set up flags for Catapult in non-siege
-  !!MA:X(MON_NOT_USED_2)/132133 F(MON_NOT_USED_2)/650 C(MON_NOT_USED_2)/(RES_GOLD)/1000; [set NU2 flags {catapult flags (132197) + shooter (4)}    NU2 Fight Value 650  ]
-  !!MA:A(MON_NOT_USED_2)/10 D(MON_NOT_USED_2)/10 P(MON_NOT_USED_2)/250 N(MON_NOT_USED_2)/24; [NU2 Attack 10 NU2 Defense 10 NU2 HP 250  NU2 Shots 24]
+; Set up flags for Catapult in non-siege
+!!MA:X(MON_NOT_USED_2)/132197 F(MON_NOT_USED_2)/650 C(MON_NOT_USED_2)/(RES_GOLD)/1000; [set NU2 flags {catapult flags (132197) + shooter (4)}    NU2 Fight Value 650  ]
+!!MA:A(MON_NOT_USED_2)/10 D(MON_NOT_USED_2)/10 P(MON_NOT_USED_2)/250 N(MON_NOT_USED_2)/24; [NU2 Attack 10 NU2 Defense 10 NU2 HP 250  NU2 Shots 24]
 
-  ; creature descriptions
-  !!SN:H^monname^/(MON_CATAPULT)/2/z155002 H^monname^/(MON_FIRST_AID_TENT)/2/z155003 H^monname^/(MON_AMMO_CART)/2/z155004;
+; creature descriptions
+!!SN:H^monname^/(MON_CATAPULT)/2/z155002 H^monname^/(MON_FIRST_AID_TENT)/2/z155003 H^monname^/(MON_AMMO_CART)/2/z155004;
 
-  ; Stack exp abilities
-  !!UN:P(WOG_OPT_STACK_EXPERIENCE)/?(stackExp:y); [check if creature experience is enabled]
-  !!UN:P(WOG_OPT_ENHANCED_MONSTERS)/?(enhancedMon:y); [Check if Enhanced Monsters is enabled in WoGify Options]
+; Stack exp abilities
+!!UN:P(WOG_OPT_STACK_EXPERIENCE)/?(stackExp:y); [check if creature experience is enabled]
+!!UN:P(WOG_OPT_ENHANCED_MONSTERS)/?(enhancedMon:y); [Check if Enhanced Monsters is enabled in WoGify Options]
 
-  !!if&(stackExp)/(enhancedMon);
-    !!EA(MON_NOT_USED_2):O(MON_CATAPULT);
+!!if&(stackExp)/(enhancedMon);
+  !!EA(MON_NOT_USED_2):O(MON_CATAPULT);
 
-    !!EA(MON_NOT_USED_2):F105/?(availSlot:y); [NU2 (catapult) - get bonus line index]
-    !!EA(MON_NOT_USED_2):B(availSlot)/1/105/61/1/1/1/1/1/1/1/1/1/1/1; [set no range penalty]
-    !!EA(MON_NOT_USED_2):F98/?(availSlot); [NU2 (catapult) - get bonus line index]
-    !!EA(MON_NOT_USED_2):B(availSlot)/1/98/61/50/50/50/50/50/50/50/50/50/50/50; [set ignore defense to 50%]
-  !!en;
+  !!EA(MON_NOT_USED_2):F105/?(availSlot:y); [NU2 (catapult) - get bonus line index]
+  !!EA(MON_NOT_USED_2):B(availSlot)/1/105/61/1/1/1/1/1/1/1/1/1/1/1; [set no range penalty]
+  !!EA(MON_NOT_USED_2):F98/?(availSlot); [NU2 (catapult) - get bonus line index]
+  !!EA(MON_NOT_USED_2):B(availSlot)/1/98/61/50/50/50/50/50/50/50/50/50/50/50; [set ignore defense to 50%]
+!!en;
 
 ; Restrain war machine quantity of commanders
 !?FU(WOG_OnNpcPlacesWarMachine)&i^wog_55_enabled^;
@@ -132,10 +132,9 @@ ZVSE2
 !!en;
 
 ; Change catapult ID to 124 - Must be after Tactics Phase due to HD mod compatibility
-; Must remove Siege Weapon flag, otherwise Spellbinder's Hat would be removed when the catapult is destroyed
 !?FU(OnAfterTacticsPhase)&i^wog_55_enabled^;
 !!re i/(BATTLE_LEFT)/(BATTLE_RIGHT);
-  !!BMi^wog_55_catapult_%i^&i^wog_55_catapult_%i^>(NO_STACK):T(MON_NOT_USED_2) Fd~(MON_FLAG_SIEGE_WEAPON);
+  !!BMi^wog_55_catapult_%i^&i^wog_55_catapult_%i^>(NO_STACK):T(MON_NOT_USED_2);
 !!en;
 
 !?FU(OnAfterBattleUniversal)&i^wog_55_enabled^;
@@ -188,10 +187,10 @@ ZVSE2
 
 
   !!re i/(firstStack)/(lastStack);
-    !!BMi:L?(hpLost:y) B?(startNum:y) N?(num:y); F?f; H130;
+    !!BMi:L?(hpLost:y) B?(initNum:y) N?(num:y); F?f; H130;
 
     !!if&(num);
-      !!if&(startNum)>(num)|(hpLost);
+      !!if&(initNum)>(num)|(hpLost);
         !!VR(damagedStack):+1;
 
         !!br;
@@ -259,9 +258,10 @@ ZVSE2
 
   !!re i/(min)/(max);
     !!BMi:F?f N?n;
-    !!VRf:&(MON_FLAG_DIED);
+    !!VR(hasDied:y):Sf &(MON_FLAG_DIED);
+    !!VR(isWM:y):Sf &(MON_FLAG_SIEGE_WEAPON);
 
-    !!if&f=0/n>0;
+    !!if&(hasDied)=0/(isWM)=0/n>0;
       !!BMi:B?s H?h L?l;
       !!VR(minLoses:y):Ss -n*h +l Fd/(INT_MAX);
 
@@ -289,9 +289,9 @@ ZVSE2
 
 !!if&(currType)=(MON_FIRST_AID_TENT)/(targetType)<>(MON_NOT_USED_2)/(stackSide)=i^battle_current_side^;
   !!if|(targetType)<(MON_CATAPULT)/(targetType)>(MON_ARROW_TOWERS);
-    !!BM(targetStack):L?(lostHp:y) N?(num:y) B?(startNum:y);
+    !!BM(targetStack):L?(lostHp:y) N?(num:y) B?(initNum:y);
 
-    !!UN|(lostHp)>0/(num)<(startNum):R5/2/17;
+    !!UN|(lostHp)>0/(num)<(initNum):R5/2/17;
   !!en;
 !!en;
 
@@ -312,8 +312,8 @@ ZVSE2
 !#VA(mode:x) (targetStack:x);
 
 ; Exit if the target is full
-!!BM(targetStack):L?(lostHp:y) N?(num:y) B?(startNum:y);
-!!FU&(lostHp)<=0/(num)>=(startNum):E;
+!!BM(targetStack):L?(lostHp:y) N?(num:y) B?(initNum:y);
+!!FU&(lostHp)<=0/(num)>=(initNum):E;
 
 ; Exit if the target is not the same side with the tent
 !!BMi^battle_current_stack^:I?(currSide:y);
@@ -334,15 +334,18 @@ ZVSE2
   !!BM(stackId):L?l;
 
   !!if&i^wog_55_Battle_HealPower^>l;
-    !!VRi:Si^wog_55_Battle_HealPower^;
-    !!BM(stackId):N?(currentNum:y) B?(startNum:y) H?(health:y);
-    !!VR(maxHeal:y):S(startNum) -(currentNum) *(health) +l;
-    !!FU(WOG_55_BattleFunc_CalculateStackHealing):P(stackId)/i^wog_55_Battle_HealPower^/?(hpLost:y)/?(num:y);
-    !!BM(stackId):N(num);
-    !!VRi^wog_55_Battle_HealPower^:Fd/(maxHeal);
+    !!BM(stackId):N?(currNum:y) B?(initNum:y) H?(health:y);
 
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/i^wog_55_Battle_HealPower^;
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ECX)/4/(hpLost);
+    !!if&(currNum)<=(initNum);          [In some cases, the current number might be bigger than initial number]
+      !!VR(maxHeal:y):S(initNum) -(currNum) *(health) +l;
+
+      !!FU(WOG_55_BattleFunc_CalculateStackHealing):P(stackId)/i^wog_55_Battle_HealPower^/?(hpLost:y)/?(num:y);
+      !!BM(stackId):N(num);
+      !!VRi^wog_55_Battle_HealPower^:F1/(maxHeal);
+
+      !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/i^wog_55_Battle_HealPower^;
+      !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ECX)/4/(hpLost);
+    !!en;
   !!en;
 
   !!VRi^wog_55_Battle_HealPower^:S0;
@@ -356,9 +359,9 @@ ZVSE2
 !?FU(WOG_55_BattleFunc_CalculateStackHealing);
 !#VA(stack:x) (healPower:x) (hpLost:x) (num:x);
 
-  !!BM(stack):H?(maxHp:y) L?(hpLost) B?(startNum:y) N?(num);
+  !!BM(stack):H?(maxHp:y) L?(hpLost) B?(initNum:y) N?(num);
 
-  !!if&(startNum)>(num);
+  !!if&(initNum)>(num);
 
     !!if&(healPower)>(hpLost);
 
@@ -367,7 +370,7 @@ ZVSE2
 
       !!if&(qtyToResurrect);
         !!VR(num):+(qtyToResurrect);
-        !!VR(num)&(num)>(startNum):S(startNum);
+        !!VR(num)&(num)>(initNum):S(initNum);
       !!en;
     !!el;
       !!VR(hpLost):-(healPower);

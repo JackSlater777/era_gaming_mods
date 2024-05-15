@@ -342,7 +342,7 @@
 			"Battle_Reward_Active":				"{Battle Reward Option}
 			
 												This option will make your game easier and not more difficult. After choosing your difficulty settings you will see a number which is your chance to get a battle reward after a fight.
-												Picking more options will increase your chance that after fights you will receive one of the following rewards: Experience, Resources, Primary Skills. A Battle Reward Chance above {~DodgerBlue}55%{~} will also give you a chance to learn spells. A chance above {~r}65%{~} will give you a small chance to find artifacts.
+												Picking more options will increase your chance that after fights you will receive one of the following rewards: Experience, Resources, Primary Skills. A Battle Reward Chance above {~DodgerBlue}60%{~} will also give you a chance to learn spells. A chance above {~r}75%{~} will give you a small chance to find artifacts.
 												The higher the score the more difficult your game will get. The chance can go over 100% which will mean you will receive a reward after every fight and the bonus is bigger as it would be if the chance is only 50%
 												Some options, for example health,attack and defense bonus, will increase your score by a lot as some other will only increase it by a few percents.",
 												
@@ -354,11 +354,11 @@
 																		
 			"Anzahl_Buffs":						"{Additional Enchantments Option}
 			
-												Will apply up to {4} random spells to neutrals, to increase the difficulty of combats.",
+												Will apply up to {4} random spells to neutrals, to increase the difficulty and randomness of combats.",
 												
 			"Anzahl_Abilities":					"{Additional Abilities Option}
 			
-												This option is currently disabled because it can cause a bug.",
+												Will apply up to {4} random Stack Experience abilities to neutrals, to increase the difficulty and randomness of combats. Using this option will automatically activate the {Neutral Stack Experience} option.",
 												
 			"Aggression_Modifier":				"{Increase Neutral Aggression}
 			
@@ -372,11 +372,14 @@
 			
 												Configuration window for Enhanced Henchmen modification made by Archer.",
 
-		    "Option_35_Free":					"{Placeholder}",
+		    "Neutral_Commander":					"{Neutral Commander and Henchman buff}
+												
+												Commanders and Henchmans from neutral map stacks will be stronger and have some scaling into late game. Currently they are just a oneshot and dont have much purpose.",
 
-		    "Option_36_Free":					"{Placeholder}",												
-		
-		
+		    "Dif_Neutral_Boost":				"{Neutral Static Boost}												
+												
+												with this option enabled neutral stacks on the map will start with +1Att/+1Def and +5%HP, additionally they will get +1 Speed at the start of month 3, month 7 and month 10. ",
+												
 			"Level_Easy":						"Easy",
 						
 			"Level_Medium":						"Medium",
@@ -416,8 +419,8 @@
 			"Option_17":						"Stack-Exp Rebalance",
 			"Option_18":						"Neutral Aggression",
 			"Option_19":						"{~DeepSkyBlue}Enh. Henchmen Config{~}",
-			"Option_35":						"",
-			"Option_36":						"",			
+			"Option_35":						"Equal Commander",
+			"Option_36":						"Static Buff",			
 
 			"16":								"1",
 			"Level_0":							"None",
@@ -540,7 +543,9 @@
 			
 			"AI_Artifacts_Eq_0":				"AI Artifacts Equip.",			
 
-			"Progressive_Text_3_0":				"Progressive Difficulty",			
+			"Progressive_Text_3_0":				"Progressive Difficulty",	
+
+			"AI_Unit_Scaling_0":				"AI Units Scaling",			
 			
 			
 			"AI_Recover_Losses":				"{AI Recover Losses}
@@ -567,7 +572,11 @@
 			"Progressive_Text_3":				"{Progressive Difficulty}
 			
 												The Progressive Difficulty option lets you set a game day at which the AI difficulty will increase to the next level. For example you can start on Easy-AI level with a Payday set to day 10 and you also set the Progressive Difficulty option to day 30. Now after 30 gamedays the AI level will be raised to Normal-AI. 
-												This option will provide you with the possibility to increase the challenge in later stages of the game. The Insane-AI level cannot be increased further."
+												This option will provide you with the possibility to increase the challenge in later stages of the game. The Insane-AI level cannot be increased further.",
+												
+		    "AI_Unit_Scaling":					"{AI Units Scaling}												
+												
+												with this option enabled the scaling of {Neutral Stats gain} option will also apply to computer players troops.",												
 
 			"Exp_Bonus":						"Experience Bonus",
 
