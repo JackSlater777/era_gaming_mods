@@ -7,7 +7,7 @@ ZVSE2
 ** Полезно как новичкам, так и для просмотра артефактов с измененными или случайными сойствами.
 
 
-!#SN:W^artefact_helper^/(TRUE);
+*#SN:W^artefact_helper^/(TRUE);
 
 !?FU(OnAdventureMapRightMouseClick)&i^mouse_item^=(ITEM_ADVMAP_ADVENTURE_MAP)/i^artefact_helper^/i^mouse_flags^=(MOUSE_FLAG_RMB)/i^key_ctrl^=(FALSE)/i^key_shift^=(FALSE)/i^key_alt^=(FALSE);
 !!OW:Cd/?(clickedPalyer:y);             [текущий игрок]

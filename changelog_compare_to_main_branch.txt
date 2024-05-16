@@ -23,9 +23,13 @@ File list changes:
         - ai no longer breaks arts/scrolls/banners
         - exp from breaking arts is no longer granted, you still can break arts to clean a backpack
         - mana from breaking scrolls is no longer granted, you still can break scrolls to clean a backpack
+    - /Data/s/interface - artefact helper.erm
+        - disabled artifact hints on adv map
+
 - Game Enhancement Mod:
     - /lang/RMG_CustomizeObjectProperties.json:
         - added objects with qty restriction
+
 - Wog Scripts:
     - /Data/s/33 wog - castle upgrading.erm:
         - the cost of upgrading building equals sum of building costs of non-upg and upg buildings
