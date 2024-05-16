@@ -11,9 +11,9 @@ TrainerX
 10SSkills
 Secondary Skills Scrolling
 HD Portraits - 32 bit
-Slater777 Scripts and Fixes
 AMER_HumanAI
 ERA Scripts Rus
+Slater777 Scripts and Fixes
 HotA
 WoG Rus
 XXL
