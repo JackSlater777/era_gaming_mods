@@ -9,64 +9,13 @@ ZVSE2
 (Pendant of Despair) -3 Morale and Luck to Enemies
 
 ****************************************************************************************************
-*Morale and Luck reducing artefacts*
+*Morale and Luck reducing artifacts*
 Script by Daemon_n and JackSlater (26.01.23)
 
 
 !?FU(gem_CreateERMHook);
-!!SN:Ex1/1/4447691/(js_MinusMorale);43DDCB
+!!SN:Ex1/1/4447691/(js_MinusMorale);
 !!SN:Ex1/1/4501536/(js_MinusLuck);
-
-
-*!SN:Ex1/1/4506010/(js_test);
-44C1E6 4506086
-
-!?FU(js_test);
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp:y)/8/4/?(strPtr:y);
-!!IF:L^%(strPtr:y)^;
-!!IF:L^%i(js_ArtMinusLuckChanger)^;
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
-!!SN:H^art^/i^js_ArtMinusLuckChanger^/0/?z3;
-!!VR(power:y):S2;
-!!FU(gem_BufferEndingEditor):P6969512/(power);
-!!UN:C6969512/4/?(txtPtr:y);
-6179DE 6388190
-!!SN:E6388190/(CALLCONV_CDECL)/?z2/(txtPtr:y)/z3;
-!!FU(gem_BufferEndingEditor):P6969512/1;
-9275E8 9598440 //wog addr?
-*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDX)/4/9598440 C(ebp)/16/4/di^gem_MonPlusLuckPower^;
-
-
-44C19A 4506010 gem_OnCreatureLuckDescriptionSpellPartStart
-44C1E6 4506086 gem_OnCreatureLuckDescriptionSpellPartEnd
-
-
-
-44C18A 4505994
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-44BE90 4505232  start function
-
-
-44C068 4505704
-
-44C08C 4505740
-44C097 4505751
-
 
 
 !?FU(js_MinusMorale);
@@ -108,15 +57,11 @@ Script by Daemon_n and JackSlater (26.01.23)
 !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp:y)/16/4/?(oppHero:y);
 
 !!VR(luckChanger:y):S0; [Reset var]
-*!VRi^js_ArtMinusLuckChanger^:S0;
-*!VRi^js_ArtMinusLuckPower^:S0;
 
 !!if&(oppHero);
   !!SN:E5084256/(CALLCONV_THISCALL)/(oppHero)/(ART_PENDANT_OF_DESPAIR);
   !!if&v1;
     !!VR(luckChanger:y): -3;
-    *!VRi^js_ArtMinusLuckChanger^:S(ART_PENDANT_OF_DESPAIR);
-    *!VRi^js_ArtMinusLuckPower^: +3;
   !!en;
 
   !!SN:E5084256/(CALLCONV_THISCALL)/(oppHero)/(ART_CLOAK_OF_DEATHS_SHADOW);
@@ -129,7 +74,7 @@ Script by Daemon_n and JackSlater (26.01.23)
   !!if&v1;
     !!VR(luckChanger:y): -2;
   !!en;
-4D9460 5084256
+
   !!SN:E5084256/(CALLCONV_THISCALL)/(oppHero)/(ART_DEMONS_HORSESHOE);
   !!if&v1;
     !!VR(luckChanger:y): -1;
@@ -143,3 +88,106 @@ Script by Daemon_n and JackSlater (26.01.23)
   !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/d(luckChanger:y);
 
 !!en;
+
+
+!?FU(gem_CreateERMHook);
+; Morale and luck descriptions
+!!SN:Ex1/1/4503127/(tum_OnSetCreatureInfoDesc); [For getting hostile hero Id for both Morale and Luck]
+!!SN:Ex1/1/4503380/(tum_OnAfterSetArtMoraleDesc);44B754
+!!SN:Ex1/1/4505502/(tum_OnAfterSetArtLuckDesc);44BF9E
+
+
+// Get hero Id of the opponent for negative morale/luck artifacts
+!?FU(tum_OnSetCreatureInfoDesc);
+!!VRi^tum_luckMoraleDesc_OppHeroIdPlusOne^:S0;
+
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
+!!UN:C(ebp)/28/4/?(heroStruct:y);
+
+!!if&(heroStruct);
+  !!UN:C(heroStruct)/26/4/?(heroId:y);
+  !!VRi^tum_luckMoraleDesc_OppHeroIdPlusOne^&(heroId)>(NO_HERO):S(heroId) +1;  
+!!en;
+
+
+; Negative Morale artifacts
+!?FU(tum_OnAfterSetArtMoraleDesc)&i^tum_luckMoraleDesc_OppHeroIdPlusOne^>0;
+!!VR(negativeMoraleArtDesc:z);
+!!VR(oppHero:y):Si^tum_luckMoraleDesc_OppHeroIdPlusOne^ -1;
+!!SN:Mi^tum_negativeMoraleArtsList^/?(size:y);
+
+!!VR(totalMoralReduction:y):S0;
+
+!!re i/0/(size)/1/-1;
+  !!SN:Mi^tum_negativeMoraleArtsList^/i/?(art:y);
+  !!HE(oppHero):A2/(art)/?(has:y)/?(equipped:y);
+
+  !!SN:H^art^/(art)/0/?(artName:z);
+  !!VRi:+1;
+
+  !!if&(equipped)>0;
+    !!SN:H^art^/(art)/0/?(artName:z);
+    !!SN:Mi^tum_negativeMoraleArtsList^/i/?(moraleReduction:y);
+    !!VR(negativeMoraleArtDesc):+^%T(misc.endl)%(artName) -%(moraleReduction)^;
+    !!VR(totalMoralReduction):+(moraleReduction);
+  !!en;
+!!en;
+
+; Exit if no negative artifact found
+!!FU&(totalMoralReduction)=0:E;
+
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
+!!VR(ptr:y):S(ebp) -92;
+
+!!SN:K(negativeMoraleArtDesc)/?(size:y);
+!!SN:E4305568/(CALLCONV_THISCALL)/(ptr)/?(negativeMoraleArtDesc)/(size);
+
+; Mark morale bonus managed here as resolved (нивелировать описание "заклинания +7")
+!!UN:C(ebp)/16/4/d(totalMoralReduction);
+
+
+; Negative Luck artifacts
+; Warning: This will only be executed when Hourglass is not equipped!
+!?FU(tum_OnAfterSetArtLuckDesc)&i^tum_luckMoraleDesc_OppHeroIdPlusOne^>0;
+!!VR(negativeLuckArtDesc:z);
+!!VR(oppHero:y):Si^tum_luckMoraleDesc_OppHeroIdPlusOne^ -1;
+!!SN:Mi^tum_negativeLuckArtsList^/?(size:y);
+
+!!VR(totalLuckReduction:y):S0;
+
+!!re i/0/(size)/1/-1;
+  !!SN:Mi^tum_negativeLuckArtsList^/i/?(art:y);
+  !!HE(oppHero):A2/(art)/?(has:y)/?(equipped:y);
+  !!VRi:+1;
+
+  !!if&(equipped)>0;
+    !!SN:H^art^/(art)/0/?(artName:z);
+    !!SN:Mi^tum_negativeLuckArtsList^/i/?(luckReduction:y);
+    !!VR(negativeLuckArtDesc):+^%T(misc.endl)%(artName) -%(luckReduction)^;
+    !!VR(totalLuckReduction):+(luckReduction);
+  !!en;
+!!en;
+
+; Exit if no negative artifact found
+!!FU&(totalLuckReduction)=0:E;
+
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
+!!VR(ptr:y):S(ebp) -32;
+
+!!SN:K(negativeLuckArtDesc)/?(size:y);
+!!SN:E4305568/(CALLCONV_THISCALL)/(ptr)/?(negativeLuckArtDesc)/(size);
+
+
+; Set up artifact description
+!?FU(OnAfterErmInstructions);
+*!FU(NewIntArray):P10/?i^tum_negativeMoraleArtsList^/(M_STORED);
+*!SN:Vi^tum_negativeMoraleArtsList^/0/(ART_PENDANT_OF_DOWNFALL)/2/(ART_HIDEOUS_MASK)/1/(ART_RING_OF_SUPPRESSION)/1/(ART_DRAGONS_HEAD)/2/(ART_PENDANT_OF_DESPAIR)/3;
+
+*!FU(NewIntArray):P10/?i^tum_negativeLuckArtsList^/(M_STORED);
+*!SN:Vi^tum_negativeLuckArtsList^/0/(ART_SHAMANS_PUPPET)/2/(ART_DEMONS_HORSESHOE)/1/(ART_RUNES_OF_IMMINENCY)/1/(ART_MISFORTUNE_RING)/3/(ART_PENDANT_OF_DESPAIR)/3;
+
+!!FU(NewIntArray):P10/?i^tum_negativeMoraleArtsList^/(M_STORED);
+!!SN:Vi^tum_negativeMoraleArtsList^/0/(ART_PENDANT_OF_DOWNFALL)/2/(ART_HIDEOUS_MASK)/1/(ART_RING_OF_SUPPRESSION)/1/(ART_CLOAK_OF_DEATHS_SHADOW)/2/(ART_PENDANT_OF_DESPAIR)/3;
+
+!!FU(NewIntArray):P10/?i^tum_negativeLuckArtsList^/(M_STORED);
+!!SN:Vi^tum_negativeLuckArtsList^/0/(ART_SHAMANS_PUPPET)/2/(ART_DEMONS_HORSESHOE)/1/(ART_RUNES_OF_IMMINENCY)/1/(ART_CLOAK_OF_DEATHS_SHADOW)/2/(ART_PENDANT_OF_DESPAIR)/3;
