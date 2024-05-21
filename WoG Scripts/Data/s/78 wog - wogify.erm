@@ -1608,16 +1608,16 @@ Returned Values:
   !!en;
 !!en;
 
-!!UN&y4=4:P234/?y31; [Check if Warlord's Banners are disabled in WoG Options: y31=0 if enabled]
-!!UN&y4=4/x4>=10/y31=0:Ov952/v953/v954/0/0; [delete old minor artifact, no redraw]
-!!UN&y4=4/x4>=10/y31=0:Iv952/v953/v954/5/156/5/156/-1/0; [place warlord's banner, no redraw]
-!!PO952&y4=4/x4>=10/y31=0:O-2; [Set value of -2 for PO:O for Warlord's Banner square]
-!!VRy50&y4=4/x4>=10/y31=0:S1; [set y50 to 1 to exit after replacement: y50]
-!!VRx4&y4=4/x4>=10/y31=0:S0; [reset minor artifact replacement counter after replacement]
+*!UN&y4=4:P234/?y31; [Check if Warlord's Banners are disabled in WoG Options: y31=0 if enabled]
+*!UN&y4=4/x4>=10/y31=0:Ov952/v953/v954/0/0; [delete old minor artifact, no redraw]
+*!UN&y4=4/x4>=10/y31=0:Iv952/v953/v954/5/156/5/156/-1/0; [place warlord's banner, no redraw]
+*!PO952&y4=4/x4>=10/y31=0:O-2; [Set value of -2 for PO:O for Warlord's Banner square]
+*!VRy50&y4=4/x4>=10/y31=0:S1; [set y50 to 1 to exit after replacement: y50]
+*!VRx4&y4=4/x4>=10/y31=0:S0; [reset minor artifact replacement counter after replacement]
 
 !!FU|y4=16/y8=1/y50=1:E; [Exit if artifact was a relic, replaced or Commanders are disabled]
 
-!!VRx1&y4>=2/y4<=8:+1; [add 1 to counter: replace 1 in 5 treasure/minor/major artifacts]
+!!VRx1&y4=4:+1; [add 1 to counter: replace 1 in 5 treasure/minor/major artifacts]
 !!VRy6&x1>=5/v955>6:S146 R8; [Commander artifact #, excluding Slava's Ring]
 !!UN&x1>=5/v955>6:Ov952/v953/v954/0/0; [delete old artifact, no redraw]
 !!UN&x1>=5/v955>6:Iv952/v953/v954/5/y6/5/y6/-1/0; [place new artifact, no redraw]
