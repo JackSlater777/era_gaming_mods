@@ -35,4 +35,6 @@ File list changes:
         - the cost of upgrading building equals sum of building costs of non-upg and upg buildings
         - extra growth from upgrading building equals basic growth
     - /Data/s/69 wog - market of time.erm:
-        - it replaces only refugee camp
+        - it replaces only war factories
+    - /Data/s/78 wof - wogify.erm:
+        - look at txt-file with the same name
