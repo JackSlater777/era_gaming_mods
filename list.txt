@@ -15,7 +15,5 @@ HD Portraits - 32 bit
 AMER_HumanAI
 ERA Scripts Rus
 Slater777 Scripts and Fixes
-HotA
 WoG Rus
 XXL
-WoG Fix Rus + Emerald Artifacts
