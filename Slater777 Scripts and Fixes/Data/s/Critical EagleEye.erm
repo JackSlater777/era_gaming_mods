@@ -2,11 +2,9 @@ ZVSE2
 
 
 !?FU(OnAfterErmInstructions);
+!!UN:P789/?(wogOption:y);
+!!FU&(wogOption)=(TRUE):E;   [выход если опция "Критическое волшебство" включена]
 !!FU(js_EagleEyeAddDesc):P;
-
-
-*?FU(OnAfterLoadGame);
-*!FU(js_EagleEyeAddDesc):P;
 
 
 !?FU(js_EagleEyeAddDesc);
@@ -49,6 +47,9 @@ ZVSE2
 
 
 !?FU(OnMagicCorrectedResistance); [перед расчетом сопротивления]
+!!UN:P789/?(wogOption:y);
+!!FU&(wogOption)=(TRUE):E;   [выход если опция "Критическое волшебство" включена]
+
 !!BG:A?y1;                    [y1 - тип действия (1 - герой колдует заклинание)]
 !!FU&y1<>(BATTLE_ACTION_HERO_CAST):E; [выход, если не колдовство героя]
 

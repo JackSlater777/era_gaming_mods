@@ -3,12 +3,8 @@ ZVSE2
 ** ENHANCED ARTIFACTS  -  ERM script 71
 
 
-!?FU(OnAfterErmInstructions);
+!?FU(OnAfterErmInstructions)&i^wog_71_enabled^=0;  // Если не включена опция с таким же эффектом
 !!FU(js_RingOfMagiAddDesc):P;
-
-
-*?FU(OnAfterLoadGame);
-*!FU(js_RingOfMagiAddDesc):P;
 
 
 !?FU(js_RingOfMagiAddDesc);
@@ -29,7 +25,7 @@ ZVSE2
 !!SN:H^art^/(ART_RING_OF_THE_MAGI)/1/(artDesc139:z);
 
 
-!?FU(OnBeforeBattleUniversal);
+!?FU(OnBeforeBattleUniversal)&i^wog_71_enabled^=0;
 !!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
   !!VR(bonus:y):S(NULL);
   !!HEi^battle_hero_%i^:A2/(ART_RING_OF_THE_MAGI)/?y-4/?(isRingOfMagi:y);

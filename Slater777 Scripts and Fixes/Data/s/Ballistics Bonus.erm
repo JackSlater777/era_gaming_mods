@@ -1,7 +1,7 @@
 ZVSE2
 
 
-!?FU(OnAfterErmInstructions);
+!?FU(OnAfterErmInstructions)&i^wog_71_enabled^=0;  // Если не включена опция с брелком, накладывающим точность
 !!FU(js_BallisticsAddDesc):P;
 
 
