@@ -14,9 +14,9 @@ ZVSE2
 
 
 !?FU(OnAfterErmInstructions)&i^wog_54_enabled^=(FALSE)/i^wog_55_enabled^=(FALSE)/i^wog_73_enabled^=(FALSE)/i^wog_204_enabled^=(FALSE)/i^wog_190_enabled^=(FALSE);
-!!SN:H^secskill^/(SKILL_FIRST_AID)/(SKILL_BASIC)/^%T(jsMod.firstAid.desc.basic)^;
-!!SN:H^secskill^/(SKILL_FIRST_AID)/(SKILL_ADVANCED)/^%T(jsMod.firstAid.desc.advanced)^;
-!!SN:H^secskill^/(SKILL_FIRST_AID)/(SKILL_EXPERT)/^%T(jsMod.firstAid.desc.expert)^;
+!!SN:H^secskill^/(SKILL_FIRST_AID)/(SKILL_BASIC)/^%T(jsMod.secSkill.firstAid.desc.basic)^;
+!!SN:H^secskill^/(SKILL_FIRST_AID)/(SKILL_ADVANCED)/^%T(jsMod.secSkill.firstAid.desc.advanced)^;
+!!SN:H^secskill^/(SKILL_FIRST_AID)/(SKILL_EXPERT)/^%T(jsMod.secSkill.firstAid.desc.expert)^;
 
 
 !?FU(js_SetMinHealPowerToHotaValues);

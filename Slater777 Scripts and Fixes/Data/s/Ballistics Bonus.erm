@@ -6,16 +6,18 @@ ZVSE2
 
 
 !?FU(js_BallisticsAddDesc);
+!!VR(addDesc:z):S^%T(jsMod.secSkill.ballistics.desc.addDesc)^;
+
 !!SN:H^secskill^/(SKILL_BALLISTICS)/(SKILL_BASIC)/?(descBaseBallistics:z);
-!!VR(descBaseBallistics:z): +^%T(ballistics.desc)^;
+!!VR(descBaseBallistics:z): +(addDesc:z);
 !!SN:H^secskill^/(SKILL_BALLISTICS)/(SKILL_BASIC)/(descBaseBallistics:z);
 
 !!SN:H^secskill^/(SKILL_BALLISTICS)/(SKILL_ADVANCED)/?(descAdvBallistics:z);
-!!VR(descAdvBallistics:z): +^%T(ballistics.desc)^;
+!!VR(descAdvBallistics:z): +(addDesc:z);
 !!SN:H^secskill^/(SKILL_BALLISTICS)/(SKILL_ADVANCED)/(descAdvBallistics:z);
 
 !!SN:H^secskill^/(SKILL_BALLISTICS)/(SKILL_EXPERT)/?(descExpBallistics:z);
-!!VR(descExpBallistics:z): +^%T(ballistics.desc)^;
+!!VR(descExpBallistics:z): +(addDesc:z);
 !!SN:H^secskill^/(SKILL_BALLISTICS)/(SKILL_EXPERT)/(descExpBallistics:z);
 
 
