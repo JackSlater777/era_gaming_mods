@@ -1,0 +1,55 @@
+ZVSE2
+
+**********************************
+****     Treeborn Quiver      ****
+**********************************
+// Script by JackSlater
+
+; This is for displaying bonus in non-combat dlg
+!?FU(tum_OnAfterHeroSpecCreatureInfo)&i^tum_js_InCombat^=(FALSE);
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-4/4/?(hero:y);
+!!UN:C(ebp)/12/4/?(crInfoPtr:y) C(crInfoPtr)/16/4/?f;
+!!UN:C(hero)/26/4/?(heroId:y) C(ebp)/8/4/?(monID:y);
+
+!!VRf:&(MON_FLAG_SHOOTER);
+!!HE(heroId):A2/(ART_TREEBORN_QUIVER)/d/?(equipped:y);
+
+!!if&f/(equipped:y);
+  !!UN:C(crInfoPtr)/84/4/d4;
+!!en;
+
+
+; Adding bonus in battle
+!?FU(tum_GiveAttackAsPrecision);
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(monStack:y) C(monStack:y)/244/4/?(side:y) C(monStack:y)/648/4/?(hypnotize:y); F4 288
+;!IF:L^%(side:y)^;
+!!if&(hypnotize:y);
+  !!VRs:S(side:y);
+  !!VR(side:y):S1 - s;
+!!en;
+!!if&i^tum_%(ART_TREEBORN_QUIVER)_equipped_%(side:y)^;
+  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/d4;
+!!en;
+
+
+!?FU(OnAfterBattleSetup);
+!!VRi^tum_%(ART_TREEBORN_QUIVER)_equipped_0^:S(FALSE);
+!!VRi^tum_%(ART_TREEBORN_QUIVER)_equipped_1^:S(FALSE);
+
+!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
+  !!HEi^battle_hero_%i^:A2/(ART_TREEBORN_QUIVER)/d/?(equipped:y);
+  !!if&(equipped);
+    !!VRi^tum_%(ART_TREEBORN_QUIVER)_equipped_%i^:S(TRUE);
+  !!en;
+!!en;
+
+
+!?FU(OnAfterBattle)|i^tum_%(ART_TREEBORN_QUIVER)_equipped_0^/i^tum_%(ART_TREEBORN_QUIVER)_equipped_1^;
+!!VRi^tum_%(ART_TREEBORN_QUIVER)_equipped_0^:S(FALSE);
+!!VRi^tum_%(ART_TREEBORN_QUIVER)_equipped_1^:S(FALSE);
+
+
+!?FU(tum_OnAfterCheckAmmoCartDuringShooting);
+0043F723 - тут уже была проверка на тележку. проверяем арт на герое
+если есть - прыжок на 0043F729
+

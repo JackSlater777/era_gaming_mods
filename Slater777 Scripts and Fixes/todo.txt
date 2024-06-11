@@ -17,6 +17,3 @@
 - plugin
 - LOOP-sound: см HotA.snd/IVORTWLO.wav
 - enter sound: как у ученого/камня опыта
-
-
-

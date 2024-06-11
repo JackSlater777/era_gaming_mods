@@ -4,22 +4,36 @@ ZVSE2
 **** Golden Goose ****
 **********************
 // Script by Archer30
+; Works with Backpack Artifact option
+; Note that Golden Goose combination artifact does not include its components' effect by default - coz 004BA890 not patched by Emerald 3 yet?
+!?FU(tum_OnCalcArtGoldIncome);
+!#VA(hook:x);
 
-!?FU(OnEveryDay)&i^tum_emerald_on^/i^timerOnce^;
-!!UN:P727/?(backpackArt:y);             [Check Backpac Artifact option of Era Scripts]
+!!UN:P727/?(backpackArt:y);             [Check Backpack Artifact option of Era Scripts]
+
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
+!!UN:C(ebp)/8/4/?(player:y);
 
 !!re i/(HERO_FIRST)/(HERO_LAST_WOG);
   !!HEi:O?(owner:y);
 
-  !!if&(owner)>(NO_OWNER);
+  !!if&(owner)=(player);
     !!HEi:A2/(ART_GOLDEN_GOOSE)/?(has:y)/?(equipped:y);
-
     !!co&(has)=0;
-    !!co&(equipped)=0/(backpackArt)<>(TRUE);
 
-    !!OW:R(owner)/(RES_GOLD)/d7000;
+    !!if&(backpackArt)=(FALSE);
+      !!VR(bonusGold:y):S(equipped) *7000;
+    !!el;
+      !!VR(bonusGold):S(has) *7000;
+    !!en;
+
+    !!UN:C(hook)/(STRUCT_HOOK_CONTEXT_ECX)/4/d(bonusGold);
   !!en;
 !!en;
+
+
+!?FU(OnEveryDay)&i^timerOnce^;
+!!UN:P727/?(backpackArt:y);             [Check Backpac Artifact option of Era Scripts]
 
 !!re i/(HERO_FIRST)/(HERO_LAST_WOG);
   !!HEi:O?(owner:y);
@@ -33,5 +47,3 @@ ZVSE2
     !!OW:R(owner)/(RES_GOLD)/d250;
   !!en;
 !!en;
-
-** end
