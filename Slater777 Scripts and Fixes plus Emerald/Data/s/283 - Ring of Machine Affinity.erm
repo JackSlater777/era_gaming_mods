@@ -1,34 +1,45 @@
-Z VSE2
+ZVSE2
 
 **********************************
 **** Ring of Machine Affinity ****
 **********************************
 
 !?FU(gem_CreateERMHook);
-!!SN:Ex1/1/4687160/(gem_DoubleTentHeal);
-!!SN:Ex1/1/5138208/(gem_GetExtraAttackToShooters);
-!!SN:Ex1/1/4456313/(gem_GetExtraShotToBallista);
-*!SN:Ex1/1/4479733/(gem_GetExtraShotToCatapult);
+!!SN:Ex1/1/4687160/(js_DoubleTentHeal); 478538
+!!SN:Ex1/1/5138208/(js_GetExtraAttackToShooters); 4E6720
+!!SN:Ex1/1/4456346/(js_SetAdditionalShots); 43FF9A
+!!SN:Ex1/1/4479733/(js_GetExtraShotToCatapult); 445AF5
 
-00445AF5 = 4479733
-00445B52 = 4479826
 
-!?FU(gem_DoubleTentHeal)&i^tum_emerald_on^;
-!!BG:H?(heroId:y);
-
-!!if&(heroId)<>(NO_HERO);
-  !!HE(heroId):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(isEquipped:y);
+!?FU(OnSetupBattlefield);
+; Check Heroes
+!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
+  !!HEi^battle_hero_%i^:A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(isEquipped:y);
   !!if&(isEquipped);
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/d<<1; [то же, что и *2]
+    !!VRi^js_roma_equipped_%i^:S(TRUE);
   !!en;
 !!en;
 
 
-!?FU(gem_GetExtraAttackToShooters)&i^tum_emerald_on^;
+!?FU(OnAfterBattle)|i^js_roma_equipped_0^/i^js_roma_equipped_1^;
+!!VRi^js_roma_equipped_0^:S(FALSE);
+!!VRi^js_roma_equipped_1^:S(FALSE);
+
+
+!?FU(js_DoubleTentHeal)|i^js_roma_equipped_0^/i^js_roma_equipped_1^;
+!!BG:Q?(sideTurn:y);
+
+!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
+  !!if&i^js_roma_equipped_%i^/(sideTurn:y)=i;/(side:y)=i
+    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/d<<1; = x2
+  !!en;
+!!en;
+
+
+!?FU(js_GetExtraAttackToShooters);
 !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-4/4/?(hero:y);
 !!UN:C(ebp)/12/4/?(monPtr:y) C(monPtr)/84/4/?(monAtk:y);
 !!UN:C(hero)/26/4/?(heroId:y) C(ebp)/8/4/?(monID:y);
-
 !!MA:X(monID)/?f;
 !!VRf:&(MON_FLAG_SHOOTER);
 
@@ -42,49 +53,58 @@ Z VSE2
 !!en;
 
 
-!?FU(gem_GetExtraShotToBallista)&i^tum_emerald_on^;
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(shooter:y) C(shooter)/52/4/?(monId:y);
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-4/4/?(target:y);
-
-!!BG:H?(heroId:y);
-
-!!if&(heroId)<>(NO_HERO)/(monId)=(MON_BALLISTA);
-  !!HE(heroId):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(isEquipped:y);
-  !!SN&(isEquipped):E4453920/(CALLCONV_THISCALL)/(shooter)/(target);
-!!en;
+!?FU(js_GetExtraShotToCatapult)&i^js_AdditionalShots^;|i^js_roma_equipped_0^/i^js_roma_equipped_1^;
+!!SN:W^js_AdditionalShots^/?(shotsNum:y);
+!!SN:W^js_AdditionalShots^/0;
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp:y)/-20/4/d(shotsNum:y); 
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/d(shotsNum:y);
 
 
-!?FU(gem_GetExtraShotToCatapult)&i^tum_emerald_on^;
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/?(shotsNumber:y);
+!?FU(OnBeforeBattleAction)|i^js_roma_equipped_0^/i^js_roma_equipped_1^;
+!!SN:W^js_AdditionalShots^/0;
+!!BG:A?(actionType:y) N?(stackNum:y) Q?(sideTurn:y);
+!!BM(stackNum:y):T?(monType:y);
+;!BM(stackNum:y):I?(side:y);
 
-!!BG:H?(heroId:y);
-!!IF:L^heroId = %(heroId), shotsNumber = %(shotsNumber)^;
-
-!!if&(heroId)<>(NO_HERO);
-  !!HE(heroId):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(isEquipped:y);
-  !!if&(isEquipped);
-    !!VR(shotsNumber): +1;
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/(shotsNumber);
+!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
+  !!if&i^js_roma_equipped_%i^/(sideTurn:y)=i;/(side:y)=i
+    !!if&(monType:y)=(MON_BALLISTA)/(actionType:y)=(BATTLE_ACTION_SHOOT);
+      !!SN:W^js_AdditionalShots^/d1;
+    !!en;
+    !!if&(monType:y)=(MON_CATAPULT)/(actionType:y)=(BATTLE_ACTION_CATAPULT);
+      !!SN:W^js_AdditionalShots^/d1;
+    !!en;
   !!en;
 !!en;
 
-!!IF:L^shotsNumber = %(shotsNumber)^;
 
+!?FU(js_SetAdditionalShots)&i^js_AdditionalShots^;
+!!SN:W^js_AdditionalShots^/?(shotsNum:y);
+!!SN:W^js_AdditionalShots^/0;
+!!SN:X?(edi:y)/1;                      
+!!FU&(shotsNum:y)<1:E;
+!!VR(esi:y):S(edi:y) +4;
+!!UN:C(esi:y)/4/?(monStack:y);               [A_STACK] - like BM:Z
+!!VR(ebx:y):S(edi:y) +16;
+!!UN:C(ebx:y)/4/?y20;                        [D_STACK]
+!!VR(monType:y):S(monStack:y) +52; 34
+!!VR(monNum:y):S(monStack:y) +76; 4C
+!!VR(blindSpell:y):S(monStack:y) +656; 290
+!!VR(stoneGazeSpell:y):S(monStack:y) +688; 2B0
+!!VR(paralizeSpell:y):S(monStack:y) +704; 2C0
+!!VR(ammoLeft:y):S(monStack:y) +216; D8
+!!VRy21:Sy20 +52; 34
+!!VRy22:Sy20 +76; 4C
 
-
-
-
-
-
-
-*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-10/4/?(v17:y);
-*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDI)/4/?(v9:y);
-*!IF:L^v9 = %(v9), v17 = %(v17)^;
-
-*!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(v3:y);
-*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDI)/4/?(v13:y);
-*!IF:L^v3 = %(v3), v13 = %(v13)^;
-
-
-
-** end
+!!re i/0/(shotsNum:y)/1/-1;
+  !!UN:C(monType:y)/4/?y31;               [BM:T]16#]
+  !!UN:C(monNum:y)/4/?y32;                [BM:N]
+  !!UN:C(blindSpell:y)/4/?y33;            [BM:G62]
+  !!UN:C(stoneGazeSpell:y)/4/?y34;        [BM:G70]
+  !!UN:C(paralizeSpell:y)/4/?y35;         [BM:G74]
+  !!UN:C(ammoLeft:y)/4/?y36;              [BM:U3]
+  !!UN:Cy21/4/?y41;                       [BM:T]
+  !!UN:Cy22/4/?y42;                       [BM:N]
+  !!FU|y31<0/y32<1/y41<0/y42<1/y33>0/y34>0/y35>0/y36<1:E;
+  !!SN:E4453920/2/(monStack:y)/y20; 43F620
+!!en;

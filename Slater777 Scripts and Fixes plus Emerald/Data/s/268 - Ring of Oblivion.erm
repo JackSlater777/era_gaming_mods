@@ -9,7 +9,7 @@ ZVSE2
 !?FU(gem_CreateERMHook);
 !!SN:Ex1/1/5128574/(tum_OnCalcNecromancyPower); [Trigger on calculating Necromancy power]
 !!SN:Ex1/1/4472337/(js_MakeLossesIrretrievable);
-!!SN:Ex1/1/4681149/(tum_BeforeBattleResultsMsg);
+!!SN:Ex1/1/4681149/(js_BeforeBattleResultsMsg);
 
 
 !?FU(OnAfterLoadGame); [Fix - if player loads the game during the battle]
@@ -24,61 +24,56 @@ ZVSE2
   !!HEi^battle_hero_%i^:A2/(ART_RING_OF_OBLIVION)/d/?(isEquipped:y);
 
   !!if&(isEquipped);
-    !!VRi^tum_roo_equipped^:S(TRUE);
+    !!VRi^js_roo_equipped^:S(TRUE);
     !!br;
   !!en;
 !!en;
 
-!!if&i^tum_roo_equipped^;
+!!if&i^js_roo_equipped^;
   !!re i/(BATTLE_ATTACKER_STACK_FIRST)/(BATTLE_DEFENDER_STACK_LAST);
     !!BMi:B?i^beforeBattleMonCount_%i^;
   !!en;
 !!en;
 
 
-!?FU(OnMonsterPhysicalDamage)&i^tum_roo_equipped^;
-!!MF:N?(stackNumber:y);
-!!FU(tum_DeleteDeadStack):P(stackNumber);
+!?FU(OnAfterBattle)&i^js_roo_equipped^;
+!!VRi^js_roo_equipped^:S(FALSE);
 
 
-!?FU(OnMagicCorrectedResistance)&i^tum_roo_equipped^;
-!!MR:N?(stackNumber:y);
-!!FU(tum_DeleteDeadStack):P(stackNumber);
-
-
-!?FU(tum_DeleteDeadStack);
-!#VA(stackNumber:x);
-
-!!BM(stackNumber):F?(monFlag:y);
-!!VR(monFlag):|268435456;
-!!BM(stackNumber):F(monFlag);
-
-
-!?FU(tum_OnCalcNecromancyPower)&i^tum_roo_equipped^;
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-4/4/?(necromancyPower:e);
-!!VR(necromancyPower):S0;
-!!UN:C(ebp)/-4/4/(necromancyPower);
-
-
-!?FU(js_MakeLossesIrretrievable)&i^tum_roo_equipped^;
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/?(currentStackCount:y);
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(currentStackPtr:y);
-!!UN:C(currentStackPtr)/248/4/?(currentStack:y) C(currentStackPtr)/244/4/?(side:y);
-
-!!VR(currentStack)&(side): +(BATTLE_STACKS_PER_SIDE);  [For right side]
-
-; Set beforeBattleMonCount to currentMonCount - it prevents casting resurection/animate and vampire reviving
-!!BM(currentStack):B(currentStackCount);
-
-
-!?FU(tum_BeforeBattleResultsMsg)&i^tum_roo_equipped^;
+!?FU(js_BeforeBattleResultsMsg)&i^js_roo_equipped^;
 !!re i/(BATTLE_ATTACKER_STACK_FIRST)/(BATTLE_DEFENDER_STACK_LAST);
   !!BMi:Bi^beforeBattleMonCount_%i^;
   !!SN:W^beforeBattleMonCount_%i^;
 !!en;
 
 
-!?FU(OnAfterBattle)&i^tum_roo_equipped^;
-!!VRi^tum_roo_equipped^:S(FALSE);
+!?FU(OnMonsterPhysicalDamage)&i^js_roo_equipped^;
+!!MF:N?(stackNumber:y);
+!!FU(js_DeleteDeadStack):P(stackNumber);
 
-** end
+
+!?FU(OnMagicCorrectedResistance)&i^js_roo_equipped^;
+!!MR:N?(stackNumber:y);
+!!FU(js_DeleteDeadStack):P(stackNumber);
+
+
+!?FU(js_DeleteDeadStack);
+!#VA(stackNumber:x);
+!!BM(stackNumber):F?(monFlag:y);
+!!VR(monFlag):|268435456;
+!!BM(stackNumber):F(monFlag);
+
+
+!?FU(tum_OnCalcNecromancyPower)&i^js_roo_equipped^;
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-4/4/?(necromancyPower:e);
+!!VR(necromancyPower):S0;
+!!UN:C(ebp)/-4/4/(necromancyPower);
+
+
+!?FU(js_MakeLossesIrretrievable)&i^js_roo_equipped^;
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/?(currentStackCount:y);
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(currentStackPtr:y);
+!!UN:C(currentStackPtr)/248/4/?(currentStack:y) C(currentStackPtr)/244/4/?(side:y);
+!!VR(currentStack)&(side): +(BATTLE_STACKS_PER_SIDE);  [For right side]
+; Set beforeBattleMonCount to currentMonCount - it prevents casting resurection/animate and vampire reviving
+!!BM(currentStack):B(currentStackCount);
