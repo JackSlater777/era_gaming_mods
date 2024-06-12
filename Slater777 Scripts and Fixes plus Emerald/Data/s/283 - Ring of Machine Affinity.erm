@@ -5,112 +5,69 @@ ZVSE2
 **********************************
 // Script by JackSlater
 
+; TODO: replace b a h(side)/?(heroNum) with function from EEF when it is released
+; In it Hypnotize is checked
 
-; This is for displaying bonus in non-combat dlg
-!?FU(tum_OnAfterHeroSpecCreatureInfo)&i^tum_js_InCombat^=(FALSE);
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-4/4/?(hero:y);
-!!UN:C(ebp)/12/4/?(crInfoPtr:y) C(crInfoPtr)/16/4/?f;
-!!UN:C(hero)/26/4/?(heroId:y) C(ebp)/8/4/?(monID:y);
 
-!!VRf:&(MON_FLAG_SHOOTER);
-!!HE(heroId):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(equipped:y);
-!!HE(heroId):A2/(ART_AMMO_CART)/d/?(equipped2:y);
+; This is for displaying bonus in non-combat dlg 
+; Bug with crInfoPtr = null if click on creature specialization!
+*?FU(tum_OnAfterHeroSpecCreatureInfo)&i^tum_js_InCombat^=(FALSE);
+*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/-4/4/?(hero:y);
+*!UN:C(ebp)/12/4/?(crInfoPtr:y) C(crInfoPtr)/16/4/?f;
+*!UN:C(hero)/26/4/?(heroId:y) C(ebp)/8/4/?(monID:y);
 
-!!if&f/(equipped:y)/(equipped2:y);
-  !!UN:C(crInfoPtr)/84/4/d4;
-!!en;
+*!VRf:&(MON_FLAG_SHOOTER);
+*!HE(heroId):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(equipped:y);
+*!HE(heroId):A2/(ART_AMMO_CART)/d/?(equipped2:y);
+
+*!if&f/(equipped:y)/(equipped2:y);
+  *!UN:C(crInfoPtr)/84/4/d4;
+*!en;
+
 
 ; Adding bonus in battle
 !?FU(tum_GiveAttackAsPrecision);
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(monStack:y) C(monStack:y)/244/4/?(side:y) C(monStack:y)/648/4/?(hypnotize:y); F4 288
-;!IF:L^%(side:y)^;
-!!if&(hypnotize:y);
-  !!VRs:S(side:y);
-  !!VR(side:y):S1 - s;
-!!en;
-!!if&i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_%(side:y)^;
-  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/d4;
-!!en;
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(monStack:y); 
+!!UN:C(monStack:y)/244/4/?(side:y); F4
+!!BA:H(side:y)/?(heroNum:y);
+!!FU&(heroNum:y)<0:E;
+!!HE(heroNum:y):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(equipped:y);
+!!HE(heroNum:y):A2/(ART_AMMO_CART)/d/?(equipped2:y);
+!!UN&(equipped:y)/(equipped2:y):Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/d4;
 
 
-!?FU(OnAfterBattleSetup);
-!!VRi^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_0^:S(FALSE);
-!!VRi^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_1^:S(FALSE);
-
-!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
-  !!HEi^battle_hero_%i^:A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(equipped:y);
-  !!if&(equipped);
-    !!VRi^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_%i^:S(TRUE);
-  !!en;
-!!en;
+!?FU(tum_OnBeforeTentHeal);
+!!BG:N?(stackNum:y);
+!!BM(stackNum:y):I?(side:y);
+!!BA:H(side:y)/?(heroNum:y);
+!!FU&(heroNum:y)<0:E;
+!!HE(heroNum:y):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(equipped:y);
+!!UN&(equipped:y):Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/d<<1; = x2
 
 
-!?FU(OnAfterBattle)|i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_0^/i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_1^;
-!!VRi^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_0^:S(FALSE);
-!!VRi^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_1^:S(FALSE);
+!?FU(tum_OnBeforeCatapultActionType);
+!!BG:N?(stackNum:y);
+!!BM(stackNum:y):I?(side:y) T?(monType:y);
+!!BA:H(side:y)/?(heroNum:y);
+!!FU&(heroNum:y)<0:E;
+!!HE(heroNum:y):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(equipped:y);
 
-
-!?FU(tum_OnBeforeTentHeal)|i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_0^/i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_1^;
-!!BG:Q?(sideTurn:y);
-
-!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
-  !!if&i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_%i^/(sideTurn:y)=i;
-    !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/d<<1; = x2
-  !!en;
+!!if&(monType:y)=(MON_CATAPULT)/(equipped:y);
+  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp:y)/-20/4/d1; 
+  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/d1;
 !!en;
 
 
-!?FU(tum_OnBeforeCatapultActionType)&i^tum_AdditionalShots^;
-!!SN:W^tum_AdditionalShots^/?(shotsNum:y);
-!!SN:W^tum_AdditionalShots^;
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp:y)/-20/4/d(shotsNum:y); 
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/d(shotsNum:y);
+!?FU(tum_OnBeforeShootActionType);
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(shooterStack:y);
+!!UN:C(shooterStack:y)/52/4/?(monType:y); 34
+!!UN:C(shooterStack:y)/244/4/?(side:y); F4
+!!BA:H(side:y)/?(heroNum:y); // TODO - use func from EEF when it is ready and released 0043FE60
+!!FU&(heroNum:y)<0:E;
+!!HE(heroNum:y):A2/(ART_RING_OF_MACHINE_AFFINITY)/d/?(equipped:y);
 
+!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBX)/4/?(targetStack:y);
 
-!?FU(OnBeforeBattleAction)|i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_0^/i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_1^;
-!!SN:W^tum_AdditionalShots^;
-!!BG:A?(actionType:y) N?(stackNum:y) Q?(sideTurn:y);
-!!BM(stackNum:y):T?(monType:y);
-
-!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
-  !!if&i^tum_%(ART_RING_OF_MACHINE_AFFINITY)_equipped_%i^/(sideTurn:y)=i;
-    !!if&(monType:y)=(MON_BALLISTA)/(actionType:y)=(BATTLE_ACTION_SHOOT);
-      !!SN:W^tum_AdditionalShots^/d1;
-    !!en;
-    !!if&(monType:y)=(MON_CATAPULT)/(actionType:y)=(BATTLE_ACTION_CATAPULT);
-      !!SN:W^tum_AdditionalShots^/d1;
-    !!en;
-  !!en;
-!!en;
-
-
-!?FU(tum_OnBeforeShootActionType)&i^tum_AdditionalShots^;
-!!SN:W^tum_AdditionalShots^/?(shotsNum:y);
-!!SN:W^tum_AdditionalShots^;
-!!SN:X?(edi:y)/1;                      
-!!FU&(shotsNum:y)<1:E;
-!!VR(esi:y):S(edi:y) +4;
-!!UN:C(esi:y)/4/?(monStack:y);               [A_STACK] - like BM:Z
-!!VR(ebx:y):S(edi:y) +16;
-!!UN:C(ebx:y)/4/?y20;                        [D_STACK]
-!!VR(monType:y):S(monStack:y) +52; 34
-!!VR(monNum:y):S(monStack:y) +76; 4C
-!!VR(blindSpell:y):S(monStack:y) +656; 290
-!!VR(stoneGazeSpell:y):S(monStack:y) +688; 2B0
-!!VR(paralizeSpell:y):S(monStack:y) +704; 2C0
-!!VR(ammoLeft:y):S(monStack:y) +216; D8
-!!VRy21:Sy20 +52; 34
-!!VRy22:Sy20 +76; 4C
-
-!!re i/0/(shotsNum:y)/1/-1;
-  !!UN:C(monType:y)/4/?y31;               [BM:T]16#]
-  !!UN:C(monNum:y)/4/?y32;                [BM:N]
-  !!UN:C(blindSpell:y)/4/?y33;            [BM:G62]
-  !!UN:C(stoneGazeSpell:y)/4/?y34;        [BM:G70]
-  !!UN:C(paralizeSpell:y)/4/?y35;         [BM:G74]
-  !!UN:C(ammoLeft:y)/4/?y36;              [BM:U3]
-  !!UN:Cy21/4/?y41;                       [BM:T]
-  !!UN:Cy22/4/?y42;                       [BM:N]
-  !!FU|y31<0/y32<1/y41<0/y42<1/y33>0/y34>0/y35>0/y36<1:E;
-  !!SN:E4453920/2/(monStack:y)/y20; 43F620
+!!if&(monType:y)=(MON_BALLISTA)/(equipped:y);
+  !!FU(tum_DoAdditionalShot):P(shooterStack:y)/(targetStack:y);
 !!en;

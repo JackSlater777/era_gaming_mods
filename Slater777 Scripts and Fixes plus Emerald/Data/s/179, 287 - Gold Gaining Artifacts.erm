@@ -19,15 +19,15 @@ ZVSE2
 
   !!if&(owner)=(player);
     !!HEi:A2/(ART_GOLDEN_GOOSE)/?(has:y)/?(equipped:y);
-    !!co&(has)=0;
+    !!co&(has:y)=0;
 
-    !!if&(backpackArt)=(FALSE);
-      !!VR(bonusGold:y):S(equipped) *7000;
+    !!if&(backpackArt:y)=(FALSE);
+      !!VR(bonusGold:y):S(equipped:y) *7000;
     !!el;
-      !!VR(bonusGold):S(has) *7000;
+      !!VR(bonusGold:y):S(has:y) *7000;
     !!en;
 
-    !!UN:C(hook)/(STRUCT_HOOK_CONTEXT_ECX)/4/d(bonusGold);
+    !!UN:C(hook)/(STRUCT_HOOK_CONTEXT_ECX)/4/d(bonusGold:y);
   !!en;
 !!en;
 
@@ -38,12 +38,12 @@ ZVSE2
 !!re i/(HERO_FIRST)/(HERO_LAST_WOG);
   !!HEi:O?(owner:y);
 
-  !!if&(owner)>(NO_OWNER);
+  !!if&(owner:y)>(NO_OWNER);
     !!HEi:A2/(ART_SACK_OF_ENDLESS_GOLD)/?(has:y)/?(equipped:y);
 
-    !!co&(has)=0;
-    !!co&(equipped)=0/(backpackArt)<>(TRUE);
+    !!co&(has:y)=0;
+    !!co&(equipped:y)=0/(backpackArt:y)<>(TRUE);
 
-    !!OW:R(owner)/(RES_GOLD)/d250;
+    !!OW:R(owner:y)/(RES_GOLD)/d250;
   !!en;
 !!en;
