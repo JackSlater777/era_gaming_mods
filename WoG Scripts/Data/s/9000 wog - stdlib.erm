@@ -52,7 +52,7 @@ ZVSE2
 !#VA(address:x);
 
 !!SN:E(address)/1/5013149/(WOG_OnNewDay);                            [trigger on start every day]
-!!SN:E(address)/1/5014608/(WOG_OnNewWeek);                           [trigger on start every week]
+!!SN:E(address)/1/5014608/(WOG_OnNewWeek);                           [trigger on start every week] 4C8450
 !!SN:E(address)/1/5016587/(WOG_OnNewMonth);                          [trigger on start every month]
 !!SN:E(address)/1/5008601/(WOG_EndOfTurn);                           [trigger on every player end of turn]
 !!SN:E(address)/1/7710213/(WOG_PreBeforeBattle);                     [use only in exceptional cases]
@@ -69,7 +69,7 @@ ZVSE2
 !!SN:E(address)/1/4455129/(WOG_HOOK_AfterAttackMainFunc);            [Trigger after shooting]
 
 !!SN:E(address)/1/5131803/(WOG_OnSetHeroMovementPoints);             [Trigger on getting the final result of initial movement points]
-!!SN:E(address)/1/4445639/(WOG_HOOK_AfterStackInitParams);           [Trigger after initialising the stats of a stack on the battlefield] 43D5C7
+!!SN:E(address)/1/4445929/(WOG_HOOK_AfterStackInitParams);           [Trigger after initialising the stats of a stack on the battlefield]
 
 !!SN:E(address)/1/7780489/(WOG_OnNpcPlacesWarMachine);               [for tents with npc]
 !!SN:E(address)/1/7780731/(WOG_OnNpcPlacesWarMachine);               [for ballistas with npc]
@@ -129,7 +129,7 @@ ZVSE2
 !?FU(WOG_HOOK_AfterStackInitParams);
 !#VA(hook:x);
 
-!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EBX)/4/?(stackStruct:y) C(stackStruct)/244/(UNC_INT)/?(side:y) C(stackStruct)/248/(UNC_INT)/?(stackPerSide:y);
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_ESI)/4/?(stackStruct:y) C(stackStruct)/244/(UNC_INT)/?(side:y) C(stackStruct)/248/(UNC_INT)/?(stackPerSide:y);
 !!VR(stackId:y):S(side) *(BATTLE_STACKS_PER_SIDE) +(stackPerSide);
 !!FU(WOG_BattleStack_InitParams):P(stackId)/(side);
 
@@ -1498,6 +1498,10 @@ The game may fall at any time.^;
   !!co&(randMon)>=(MON_CATAPULT)/(randMon)<=(MON_ARROW_TOWERS);
   !!co&(randMon)>=(MON_EMISSARY_OF_WAR)/(randMon)<=(MON_EMISSARY_OF_LORE);
   !!co&(randMon)>=(MON_COMMANDER_FIRST_A)/(randMon)<=(MON_COMMANDER_LAST_D);
+
+  ; Check if the monster is allowed to spawn
+  !!MA:H(randMon)/?(advMapHigh:y);
+  !!co&(advMapHigh)<=0;
 
   ; Check if the level and fight value are ideal
   !!MA:L(randMon)/?(level:y);
