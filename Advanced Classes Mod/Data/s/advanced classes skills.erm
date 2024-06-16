@@ -4570,7 +4570,7 @@ Taken from Algor Era Scripts
 
 ***************
 !?FU(OnBeforeBattleUniversal);          [Combat Start]
-
+!!FU:E;                                 [Disabled]
 !!BA:H0/?y1;
 !!FU(Improved_Luck_Bonus0):Py1/1;
 
@@ -4634,31 +4634,33 @@ Taken from Algor Era Scripts
 
 
 !?FU(AC_Function_9);                    [increase Units Stats]
-
+!!BMx16:T?y1 N?y2; !!FU&y2=0:E;
+!!FU|y1=145/y1=146/y1=147/y1=148/y1=149:E; [Execlude Warmachines]
 !!SN:W^Prepare_For_Battle_Bonus^/?y10;
 
-!!if&x1=1;                             [Attack]
-!!BMx16:Ady10;
+!!if&x1=1;                              [Attack]
+  !!BMx16:Ady10;
 !!en;
 
-!!if&x1=2;                             [Defense]
-!!BMx16:Ddy10;
+!!if&x1=2;                              [Defense]
+  !!BMx16:Ddy10;
 !!en;
 
-!!if&x1=3;                             [Health]
-!!VRy10:+100;
-!!BMx16:H?y1;
-!!BMx16:N?y20;                          [Hit Points of stack: y2]
-!!FU&y20=0:E;                           [Exit if zero health]
-!!VRy2:Sy1*y10:100;
-!!VRy2&y2=y1:+1;                        [Min +1HP for low level troops]
-!!BMx16:Hy2;
+!!if&x1=3;                              [Health]
+  !!VRy10:+100;
+  !!BMx16:H?y1;
+  !!BMx16:N?y20;                          [Hit Points of stack: y2]
+  !!FU&y20=0:E;                           [Exit if zero health]
+  !!VRy2:Sy1*y10:100;
+  !!VRy2&y2=y1:+1;                        [Min +1HP for low level troops]
+  !!BMx16:Hy2;
 !!en;
 
-!!if&x1=4;                             [Speed]
-!!BMx16:Sdy10;
+!!if&x1=4;                              [Speed]
+  !!BMx16:Sdy10;
 !!en;
 
+!!IF:L^%Y1^;
 
 ************************Ballistics**********************************************
 *Doubles the HP of all War Machines and increases the damage of Ranged Attacks
@@ -5918,7 +5920,8 @@ gives +50/100/150/250/500 HP to Ballista WM
 
 
 ********************HOOK_CODE******************************
-!?FU(OnGameEnter);
+!?FU(OnStartOrLoad);
+
 !!SN:L^EraPlugins\erm_hooker.era^/?y1;
 !!FU&y1=0:E;
 
@@ -10705,47 +10708,45 @@ Fire Mage Commander class script, cast Fireball with attacks. Scales as 8 times 
 !?FU(ACM_Event_AfterMeeleDamage);
 
 !!SN:W^FireMage_Attacking_Stack^/?y4;
-!!UN:C42149568/4/?y10;                  [Physical Damage]
-!!if&y10=4462398;                       [Only run when melee]
-  !!BG:A?y1 N?y2 D?y3 E?y6 H?y50;       [action type, Attacking stack number, Destination Poistion and Hero]
-  !!BMy6&y6>=0:F?y22; !!VRy22:&1; !!VRy3&y22>0:+1; [For 2hex creatures increase hex position by +1]
-  !!FU|y1<>6/y50<0:E;                   [Exit if no melee attack or no monster at position or no Hero]
-  !!HEy50:F?y60/?y60/?y61/?y60;         [Get Spell Power from hero]
-  !!FU(Check_Com_Masteries):Py50/?y51/?y52/?y53/?y54/0/0/0/0/0/?y55; [Pass Hero Number and return Class and Spell Damage modifier]
-  !!SN:W^Commander_%Y50_Ancient_FireMage^/?y90;  
-  !!VRy54&y90=1:S9;                     [Check for Ancient Fire Mage and set active]
-  !!FU&y54<>9:E;                        [Exit if commander class is not Fire Mage]  
-  !!VRy21&y51=0:S21; !!VRy56&y51=0:S60; [Set Spell to Fireball]
-  !!VRy21&y51=1:S22; !!VRy56&y51=1:S90; [Set Spell to Inferno if Mastery is enabled]
-  !!if&y4=y2/y6>=0;                     [If Attacking=Receiving means retaliation, so switch to target stack and position]
-    !!BMy4:P?y20;                       [Stack Position ]
-    !!VRy3:Sy20;                        [Switch Position]
-    !!VRy2:Sy6;                         [Switch Stack]
-  !!en;
-  !!BMy2:T?y5 N?y7;                     [Creature Type and number]
-  !!if&y5>=174/y5<=191;                 [If any commander]
-    !!if&y1=6/y3>=0/y3<=186/y4<>y2;
-        !!FU(H3_Calc_Normal_Spell_Damage):Py50/?y99/?y98/1/y21/0; [Pass Hero Number and Give Back Damage in y99 and Extra Damage Option and Spell Number]
-        !!SSy21:E3/?y57;                [get extra spell damage]
-        !!VRy8:S8*y61*y99:100*y55:100-y56; [Damage is 8*Spell Power from Hero, +%Hero Spell Damage +%CommanderSpell Damage - base spell offset for clean calculation]
-        !!VRy8&y8<0:S0;                 [Value cannot be below zero to prevent negative damage, it will apply base damage instead]
-        !!SSy21:E3/y8;                  [set new damage for Fireball to also show damage when hitting several targets]
 
-        ; Archer30's new implementation
-        !!VRi^acm_fireMageSpell^:Sy21;
-        !!VRi^acm_fireMageStack^:Sy2;
-        !!FU(ACM_GetActualStackSide):Py2/?i^acm_fireMageSide^;
+!!BG:A?y1 N?y2 D?y3 E?y6 H?y50;       [action type, Attacking stack number, Destination Poistion and Hero]
+!!BMy6&y6>=0:F?y22; !!VRy22:&1; !!VRy3&y22>0:+1; [For 2hex creatures increase hex position by +1]
+!!FU|y1<>6/y50<0:E;                   [Exit if no melee attack or no monster at position or no Hero]
+!!HEy50:F?y60/?y60/?y61/?y60;         [Get Spell Power from hero]
+!!FU(Check_Com_Masteries):Py50/?y51/?y52/?y53/?y54/0/0/0/0/0/?y55; [Pass Hero Number and return Class and Spell Damage modifier]
+!!SN:W^Commander_%Y50_Ancient_FireMage^/?y90;  
+!!VRy54&y90=1:S9;                     [Check for Ancient Fire Mage and set active]
+!!FU&y54<>9:E;                        [Exit if commander class is not Fire Mage]  
+!!VRy21&y51=0:S21; !!VRy56&y51=0:S60; [Set Spell to Fireball]
+!!VRy21&y51=1:S22; !!VRy56&y51=1:S90; [Set Spell to Inferno if Mastery is enabled]
+!!if&y4=y2/y6>=0;                     [If Attacking=Receiving means retaliation, so switch to target stack and position]
+  !!BMy4:P?y20;                       [Stack Position ]
+  !!VRy3:Sy20;                        [Switch Position]
+  !!VRy2:Sy6;                         [Switch Stack]
+!!en;
+!!BMy2:T?y5 N?y7;                     [Creature Type and number]
+!!if&y5>=174/y5<=191;                 [If any commander]
+  !!if&y1=6/y3>=0/y3<=186/y4<>y2;
+      !!FU(H3_Calc_Normal_Spell_Damage):Py50/?y99/?y98/1/y21/0; [Pass Hero Number and Give Back Damage in y99 and Extra Damage Option and Spell Number]
+      !!SSy21:E3/?y57;                [get extra spell damage]
+      !!VRy8:S8*y61*y99:100*y55:100-y56; [Damage is 8*Spell Power from Hero, +%Hero Spell Damage +%CommanderSpell Damage - base spell offset for clean calculation]
+      !!VRy8&y8<0:S0;                 [Value cannot be below zero to prevent negative damage, it will apply base damage instead]
+      !!SSy21:E3/y8;                  [set new damage for Fireball to also show damage when hitting several targets]
 
-        !!BMy2:Cy21/y3/3/3/0;           [Cast Expert Spell at Stack Position]
+      ; Archer30's new implementation
+      !!VRi^acm_fireMageSpell^:Sy21;
+      !!VRi^acm_fireMageStack^:Sy2;
+      !!FU(ACM_GetActualStackSide):Py2/?i^acm_fireMageSide^;
 
-        !!VRi^acm_fireMageSpell^:S0;
-        !!VRi^acm_fireMageStack^:S0;
-        !!VRi^acm_fireMageSide^:S0;
+      !!BMy2:Cy21/y3/3/3/0;           [Cast Expert Spell at Stack Position]
 
-        !!SSy21:E3/y57;                 [Revert damage to value from before]
-        !!VRy85:S0R2;                   [Generate Random Number]
-        !!SN&y85=0/y52<y53:W^Commander_Kill_Counter_%Y50^/d1; [Increase counter by one with each attack and 33% chance]
-    !!en;
+      !!VRi^acm_fireMageSpell^:S0;
+      !!VRi^acm_fireMageStack^:S0;
+      !!VRi^acm_fireMageSide^:S0;
+
+      !!SSy21:E3/y57;                 [Revert damage to value from before]
+      !!VRy85:S0R2;                   [Generate Random Number]
+      !!SN&y85=0/y52<y53:W^Commander_Kill_Counter_%Y50^/d1; [Increase counter by one with each attack and 33% chance]
   !!en;
 !!en;
 
@@ -10755,14 +10756,17 @@ Fire Mage Commander class script, cast Fireball with attacks. Scales as 8 times 
 
 !?MF1;
 *When attacking with Fire Mage make own units immune vs damage*
+; Note: This script won't work if Magog's are able to retaliate in range (due to using i^battle_acting_side^ to check shooting side)
 !!SN:W^Magog_Fireball_Enable^/?y1;
 !!FU&y1=0:E;
-!!BG:N?y1;                              [Get attacking stack number]
+
 !!MF:N?y4;                              [Get defending stack number]
-!!BMy1:I?y5;                            [Get attacking stack side]
+!!BG:E?y30;
+!!FU&y4=y30:E;
+
 !!BMy4:I?y6;                            [Get defending stack side]
 !!UN:C42149568/4/?y10;                  [Judgement basis (028326c0)]
-!!MF&y10=4454752/y5=y6:E0;              [Disable taking damage if Magog Fireball and own team]
+!!MF&y10=4454752/i^battle_acting_side^=y6:E0; [Disable taking damage if Magog Fireball and own team]
 
 ; Archer30's new implementation
 !?FU(OnDwarfMagicResistance_Quit)&i^acm_fireMageSpell^;
@@ -10933,6 +10937,7 @@ Fire Mage Commander class script, cast Fireball with attacks. Scales as 8 times 
     !!BMx16:Ady40 Ddy41 H?y42 U1/?y43 U2/?y44; [Reduce Attack and Defense of Commander to only 25% from Hero stats]
   !!en;
 
+  !!FU(ACM_MP_Sync_Commander_Classes):Py10; [Send potential change about commander class to other players computer]
   !!BMx16:A?y30 D?y31 S?y32 U1/?y33 U2/?y34 H?y35 F?y36; [Get Parameters of the Commander]
   !!FU(Check_Com_Masteries):Py10/?y15/0/0/?y50/?y60/?y61/?y62/?y63/?y64/0/0/0/?y65; [Get commander class modifier from function]
 
@@ -11740,8 +11745,7 @@ x7=spell points x8=spell damage modifier, x8=enemy hero
 !!DL274:A45/4/y6/1;                     
 !!DL274:A46/4/y7/1;                     
 !!DL274:A47/4/y8/1;                   
-!!DL274:A48/4/y9/1;         
-
+!!DL274:A48/4/y9/1;       
 
 Close Dialouge
 !?DL&v998=274/v999=30722/v1000=13;
@@ -11758,6 +11762,7 @@ Close Dialouge
 
 !!VRy50:Sy1+y2+y3+y4+y5+y6+y7+y8+y9;    [Get number of activated options]
 !!DL&y50>0:C1;                          [Only close when at least one option was activated]
+!!FU(ACM_MP_Sync_Commander_Classes):Py99; [Send potential change about commander class to other players computer]
 
 
 ********************************************************************************
@@ -13394,9 +13399,8 @@ x1 - hero id, x2 - spell id, x3 - returns increased damage
 !!DO(AC_Function_59)/0/20/1&y95=6:P120/2;
 !!en;
 
-!!SN:W^Prepare_For_Battle_Att^/?y80;    [Scouting Set]
-!!DO(AC_Function_60)/0/20/1&y80>0:Py80;
-
+*!SN:W^Prepare_For_Battle_Att^/?y80;    [Scouting Set]
+*!DO(AC_Function_60)/0/20/1&y80>0:Py80;
 
 !!BH1:N?y2;                             [Defending Hero]
 
@@ -13431,8 +13435,8 @@ x1 - hero id, x2 - spell id, x3 - returns increased damage
 !!DO(AC_Function_59)/21/41/1&y95=6:P120/2;
 !!en;
 
-!!SN:W^Prepare_For_Battle_Def^/?y80;    [Scouting Set]
-!!DO(AC_Function_60)/21/41/1&y80>0:Py80;
+*!SN:W^Prepare_For_Battle_Def^/?y80;    [Scouting Set]
+*!DO(AC_Function_60)/21/41/1&y80>0:Py80;
 
 !!en;
 
@@ -13442,9 +13446,9 @@ x1 - hero id, x2 - spell id, x3 - returns increased damage
 !!BA:H1/?y4;
 !!SN&y4<>-2:W^Hero_Defender_Owner0^/y20;
 
-!!SN:W^Prepare_For_Battle_Att^/0;
-!!SN:W^Prepare_For_Battle_Def^/0;
-!!SN:W^Prepare_For_Battle_Bonus^/0;
+*!SN:W^Prepare_For_Battle_Att^/0;
+*!SN:W^Prepare_For_Battle_Def^/0;
+*!SN:W^Prepare_For_Battle_Bonus^/0;
 
 
 ********************************************************************************
@@ -15210,7 +15214,7 @@ x1=hero number, x2-15 returns set pieces
 ************************Angelic Alliance Set Piece******************************
 !?FU(AC_Function_59);                   [increase HP and Speed]
 
-!!BMx16:T?y1;
+!!BMx16:T?y1 N?y2; !!FU&y2=0:E;
 !!FU|y1=145/y1=146/y1=147/y1=148/y1=149:E; [Execlude Warmachines]
 !!BMx16:H?y1;
 !!VRy1:*x1:100;
@@ -15218,8 +15222,7 @@ x1=hero number, x2-15 returns set pieces
 
 ************************Scouting Set Piece**************************************
 !?FU(AC_Function_60);                   [increase Units Stats]
-
-!!BMx16:T?y1;
+!!BMx16:T?y1 N?y2; !!FU&y2=0:E;
 !!FU|y1=145/y1=146/y1=147/y1=148/y1=149:E; [Execlude Warmachines]
 
 !!SN:W^Prepare_For_Battle_Bonus^/?y10;
@@ -15242,6 +15245,8 @@ x1=hero number, x2-15 returns set pieces
 !!if&x1=4;                             [Speed]
 !!BMx16:Sdy10;
 !!en;
+
+
 
 ************************Statue of Legion Set Piece******************************
 !?FU(OnEveryDay)&i^timerDay^>1/i^timerWeekDay^=1;
@@ -15526,13 +15531,12 @@ Glittering Surcoat of Quicksand 168
 
 !?FU(OnAfterBattleUniversal)&1000;
 !!BA:H0/?y1;
-!!HEy1:O?y2;                            [get owner ]
-!!OW:C?y4;                              [get current player]
+!!HEy1:O?y2;                            [get owner]
+!!OW:C?y4/?y5;                          [get current player and interacting player]
 !!FU&y2<>y4:E;                          [exit if not current player's hero]
 !!OW:Iy4/?y88;
 !!FU&y88=1:E;                           [Exit if AI]
 !!HEy1:E?y15/?y16/1;                    [Get Hero Level]
-
 !!FU(Class_Artifacts_Reward)&y16>=20:Py1;[Run only if level 20 or higher]
 
 
@@ -15543,7 +15547,8 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^Battle_Commander_On^/?y50;       [Check if Battle Commander was active]
 !!SN:T^AC_Misc.Class Sets^/?z2;
-!!HEx1:A2/47/?y59/?y60;                 [47 Cards of Prophecy +1]
+!!OW:C?y4/?y5;                          [get current player and interacting player]
+!!HEx1:A2/47/?y59/?y60 O?y3;            [47 Cards of Prophecy +1 and get current owner]
 !!FU(Count_Set_Pieces):Px1/0/0/0/0/?y95;[Check for The Adventures Fidelity]
 *Set the class check to true so all sets can be found if full set is worn*
 
@@ -15557,7 +15562,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^161_Class_Artifact_Hero%X1^/?y30;[Check if Artifact has already been given to that Hero]
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/161/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/161/1/z2;         [Show Message with Artifact if current player is interacting player]
 !!HEx1:A161;                            [Give Artifact to Hero]
 !!SN:W^161_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;                                 [Exit so only one artifact is given per battle]
@@ -15565,7 +15570,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^162_Class_Artifact_Hero%X1^/?y30;
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/162/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/162/1/z2;         [Show Message with Artifact]
 !!HEx1:A162;                            [Give Artifact to Hero]
 !!SN:W^162_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;                                 [Exit so only one artifact is given per battle]
@@ -15573,7 +15578,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^169_Class_Artifact_Hero%X1^/?y30;
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/169/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/169/1/z2;         [Show Message with Artifact]
 !!HEx1:A169;                            [Give Artifact to Hero]
 !!SN:W^169_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;                                 [Exit so only one artifact is given per battle]
@@ -15592,7 +15597,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^163_Class_Artifact_Hero%X1^/?y30;[Check if Artifact has already been given to that Hero]
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/163/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/163/1/z2;         [Show Message with Artifact]
 !!HEx1:A163;                            [Give Artifact to Hero]
 !!SN:W^163_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;
@@ -15600,7 +15605,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^168_Class_Artifact_Hero%X1^/?y30;[Check if Artifact has already been given to that Hero]
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/168/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/168/1/z2;         [Show Message with Artifact]
 !!HEx1:A168;                            [Give Artifact to Hero]
 !!SN:W^168_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;
@@ -15608,7 +15613,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^165_Class_Artifact_Hero%X1^/?y30;[Check if Artifact has already been given to that Hero]
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/165/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/165/1/z2;         [Show Message with Artifact]
 !!HEx1:A165;                            [Give Artifact to Hero]
 !!SN:W^165_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;
@@ -15626,7 +15631,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^164_Class_Artifact_Hero%X1^/?y30;[Check if Artifact has already been given to that Hero]
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/164/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/164/1/z2;         [Show Message with Artifact]
 !!HEx1:A164;                            [Give Artifact to Hero]
 !!SN:W^164_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;
@@ -15634,7 +15639,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^166_Class_Artifact_Hero%X1^/?y30;[Check if Artifact has already been given to that Hero]
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/166/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/166/1/z2;         [Show Message with Artifact]
 !!HEx1:A166;                            [Give Artifact to Hero]
 !!SN:W^166_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;
@@ -15642,7 +15647,7 @@ Glittering Surcoat of Quicksand 168
 
 !!SN:W^167_Class_Artifact_Hero%X1^/?y30;[Check if Artifact has already been given to that Hero]
 !!if&y99>=98/y30=0;
-!!IF:Q2/8/167/1/z2;                     [Show Message with Artifact]
+!!IF&y3=y4/y3=y5:Q2/8/167/1/z2;         [Show Message with Artifact]
 !!HEx1:A167;                            [Give Artifact to Hero]
 !!SN:W^167_Class_Artifact_Hero%X1^/1;   [Set flag to true if Artifact has already been given to that Hero]
 !!FU:E;
@@ -17329,6 +17334,17 @@ All changes to these parameters should be done here. Values can be called anytim
 !!HE-1:N?y1;                            [get current hero]
 !!SN:W^Commander_Opal_SpellDmg_%Y1^/d1; [count how many times opal crystal was visited]
 
+
+; Send the change about commander class to other players computer
+!?FU(ACM_MP_Sync_Commander_Classes);
+x1=Hero ID  
+!!IP:D(ANY_PLAYER);
+!!IP:M^Commander_Fighter_%X1^/^Commander_Ranger_%X1^/^Commander_Defender_%X1^/^Commander_Caster_%X1^/^Commander_Supporter_%X1^/^Commander_Leader_%X1^/^Commander_Scout_%X1^/^Commander_Undead_%X1^/^Commander_FireMage_%X1^;
+!!IP:M^Commander_Dragonslayer_%X1^/^Commander_Sniper_%X1^/^Commander_Retaliator_%X1^/^Commander_ArchMage_%X1^/^Commander_Constructor_%X1^/^Commander_King_%X1^/^Commander_Prospector_%X1^/^Commander_Lich_%X1^/^Commander_Vampire_%X1^;
+!!IP:M^Commander_Paladin_%X1^/^Commander_Marksmen_%X1^/^Commander_Avenger_%X1^/^Commander_Warden_%X1^/^Commander_Arcanist_%X1^/^Commander_General_%X1^/^Commander_Lancer_%X1^/^Commander_Necromant_%X1^/^Commander_Ancient_%X1^;
+!!IP:S;                                 [command to perform synchronization of all marked variables and arrays]
+
+
 ****************************************************************************************************
 // Reset commander stats after recruiting a new one
 ; by Archer30
@@ -17387,7 +17403,7 @@ Also show if Mastery is active or not
 !!en;
 
 
-!?FU(OnGameEnter); 
+!?FU(OnStartOrLoad); 
 !!SN:L^EraPlugins\erm_hooker.era^/?y1;
 !!FU&y1=0:E;
 
@@ -18073,7 +18089,7 @@ Fix for Cart of Lumber and Cart of Ore give +2 in total
 ****************************************************************************************************
 *Luck reducing Artifacts
 
-!?FU(OnGameEnter);                      [At gamestart]
+!?FU(OnStartOrLoad);                      [At gamestart]
 !!SN:L^EraPlugins\erm_hooker.era^/?y1;
 
 !!if&y1;
@@ -25370,9 +25386,9 @@ This MS will not show in your bonus list and the bonus is only given in the visi
 ; Bless41, Curse42
 !!if|x2=41/x2=42;
 !!VRx3&y1>=25:S1;
-!!VRx3&y1>=60:S2;
-!!VRx3&y1>=100:S3;
-!!VRx3&y1>=150:S4;
+!!VRx3&y1>=65:S2;
+!!VRx3&y1>=105:S3;
+!!VRx3&y1>=160:S4;
 !!en;
 
 
@@ -25385,12 +25401,20 @@ This MS will not show in your bonus list and the bonus is only given in the visi
 !!en;
 
 
-;Haste53/Prayer48
-!!if|x2=48/x2=53;
+;Haste53
+!!if&x2=53;
 !!VRx3&y1>=35:S1;
 !!VRx3&y1>=45:S2;
 !!VRx3&y1>=75:S3;
 !!VRx3&y1>=110:Sy1:25;
+!!en;
+
+;Prayer48
+!!if&x2=48;
+!!VRx3&y1>=35:S1;
+!!VRx3&y1>=55:S2;
+!!VRx3&y1>=95:S3;
+!!VRx3&y1>=130:Sy1:25;
 !!en;
 
 
@@ -31216,7 +31240,7 @@ Grandmaster Mage:+1
 
 !!if&y2=41/y83>=0;                      [Bless]
 !!SN:W^SpellTrainerHero%Y99_Spell41^/?y1;
-!!if|y1=7/y1=20/y1=35/y1=70/y1=110/y1=150/y1=200/y1=250/y1=300/y1=350/y1=400/y1=450/y1=500/y1=550;
+!!if|y1=10/y1=30/y1=55/y1=90/y1=130/y1=170/y1=220/y1=300/y1=400/y1=500/y1=600/y1=700/y1=800/y1=1000;
 !!SN:W^Hero%Y99_Bless_Upgrade^/?y20;
 *!SS41:E3/?y10;
 *!VRy10:+1 +y20;
@@ -31614,7 +31638,7 @@ Grandmaster Mage:+1
 
 !!if&y2=48/y83>=0;                      [Prayer]
 !!SN:W^SpellTrainerHero%Y99_Spell48^/?y1;
-!!if|y1=7/y1=20/y1=35/y1=65/y1=100/y1=140/y1=200/y1=250/y1=300/y1=350/y1=400/y1=450/y1=500/y1=550;
+!!if|y1=10/y1=35/y1=50/y1=70/y1=130/y1=180/y1=220/y1=290/y1=350/y1=450/y1=550/y1=650/y1=800/y1=1000;
 !!SN:W^Hero%Y99_Prayer_Upgrade^/?y20;
 *!SS48:E3/?y10;
 *!VRy10:+1 +y20;
@@ -33984,7 +34008,6 @@ x1=commader class (1-29), x2=hero ID, x3=kill count, x4=passive mod, x5=Mastery,
 !!DL276:A57/4/y27/1;         
 
 
-
 Close Dialouge
 !?DL&v998=276/v999=30722/v1000=13;
 !!SN:W^ACM_Commander_Hero_ID^/?y99;
@@ -34041,6 +34064,7 @@ Close Dialouge
 !!SN&y98>10:W^Commander_Kill_Counter_%Y99^/0; [If a promotion class has been selected reset the kill counter for that commander]
 
 !!FU(ACM_Com_Support_Passive_Selection)&y23=1:Py99; [If 2Supporter class was selected offer new passive ability]
+!!FU(ACM_MP_Sync_Commander_Classes):Py99; [Send potential change about commander class to other players computer]
 
 
 ****************************************************************************************************
@@ -35914,7 +35938,7 @@ Spell Channeling enabled or not
 !!en;
 
 
-!?FU(OnGameEnter);                      [At gamestart]
+!?FU(OnStartOrLoad);                      [At gamestart]
 !!SN:L^EraPlugins\erm_hooker.era^/?y1;
 !!if&y1;
   !!SN:Ay1/^SetHook^/?y2;
