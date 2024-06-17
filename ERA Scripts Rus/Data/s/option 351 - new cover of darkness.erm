@@ -8,7 +8,7 @@ ZVSE2
 
 
 // Disable the original functionality of Cover of Darkness (Necropolis building) and Veil of Darkness
-!?FU(OnGameEnter);
+!?FU(OnStartOrLoad);
 !!UN:P351/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;
 
@@ -195,7 +195,7 @@ ZVSE2
 !!FU&(objType)<>(OBJ_COVER_OF_DARKNESS):E;
 
 !!FU(ES_351_GetMapObjectString):P(x)/(y)/(z)/1/?(string:z);
-!!SN:H^object^/(OBJ_COVER_OF_DARKNESS)/0/^%(string)^;
+*!SN:H^object^/(OBJ_COVER_OF_DARKNESS)/0/^%(string)^;
 !!CM:R0;
 !!IF:M0/(MSG_TYPE_POPUP)/^%(string)^;
 
@@ -251,7 +251,7 @@ ZVSE2
 !?FU(OnEveryDay)&i^timerOnce^;
 !!UN:P351/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;
-!!FU:E;
+
 ; Check if it is a real multiplayer game
 !!VR(isLocalGame:y):S(TRUE);
 !!UN:V?t/?t/?t/?t/?(gameType:y);
