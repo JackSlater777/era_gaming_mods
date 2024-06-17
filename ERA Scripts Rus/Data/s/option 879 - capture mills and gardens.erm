@@ -176,31 +176,31 @@ ZVSE2
 !!VR(x):S-1;                                                  [init as start]
 
 !!re i;                                                       [endless loop]
-  !!UN:U(objType)/(ANY_OBJ)/-1/(x)/(y)/(z); 
+  *!UN:U(objType)/(ANY_OBJ)/-1/(x)/(y)/(z); 
   !!br&(x)<0;                                                 [exit loop if nothing found]
 
   !!PO(x)/(y)/(z):O?(owner:y);                                [get obj owner]
 
-  !!if&(owner)<>(NO_OWNER);                                    [if there is one]
-    !!SN:V(liveArr)/(owner)/?(isAlive:y);                     [check if lives]
+  *!if&(owner)<>(NO_OWNER);                                    [if there is one]
+    *!SN:V(liveArr)/(owner)/?(isAlive:y);                     [check if lives]
 
-    !!if&(isAlive);
-      !!UN:C(hero)/34/1/(owner);                              [set hero as obj owner color]
-      !!OB(x)/(y)/(z):T?(heroCheck:y);
+    *!if&(isAlive);
+      *!UN:C(hero)/34/1/(owner);                              [set hero as obj owner color]
+      *!OB(x)/(y)/(z):T?(heroCheck:y);
 
-      !!if&(heroCheck)=(OBJ_HERO);
-        !!HE(x)/(y)/(z):Z?(badHero:y);
-        !!SN:E5077328/(CALLCONV_THISCALL)/(badHero);         [hide hero if it is there]
-      !!en;
+      *!if&(heroCheck)=(OBJ_HERO);
+        *!HE(x)/(y)/(z):Z?(badHero:y);
+        *!SN:E5077328/(CALLCONV_THISCALL)/(badHero);         [hide hero if it is there]
+      *!en;
 
-      !!FU(ES_AdvMgr_GetMapItem):P(x)/(y)/(z)/?(mapItem:y);  [get mapItem]
-      !!FU(ES_879_AdjustStoredRes):P(x)/(y)/(z)/(objType);
-      !!SN:E(funcAddr)/(CALLCONV_STDCALL)/(hero)/(mapItem)/0; [visit mapItem as AI]
-    !!el;
-      !!PO(x)/(y)/(z):O(NO_OWNER) V0/0 V1/0;                            [set no owner if is dead]
-      !!FU(ES_879_MP_SendObjectOwner):P(x)/(y)/(z)/(NO_OWNER);
-    !!en;
-  !!en;
+      *!FU(ES_AdvMgr_GetMapItem):P(x)/(y)/(z)/?(mapItem:y);  [get mapItem]
+      *!FU(ES_879_AdjustStoredRes):P(x)/(y)/(z)/(objType);
+      *!SN:E(funcAddr)/(CALLCONV_STDCALL)/(hero)/(mapItem)/0; [visit mapItem as AI]
+    *!el;
+      *!PO(x)/(y)/(z):O(NO_OWNER) V0/0 V1/0;                            [set no owner if is dead]
+      *!FU(ES_879_MP_SendObjectOwner):P(x)/(y)/(z)/(NO_OWNER);
+    *!en;
+  *!en;
 !!en;
 
 !?FU(ES_879_AdjustStoredRes);
