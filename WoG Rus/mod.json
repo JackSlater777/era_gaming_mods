@@ -23,7 +23,7 @@
 		"index": 0
 	},
 	"mod_version": "3.9.2",
-	"priority": 1,
+	"priority": 0,
 	"compatibility": {
 		"class": "all",
 		"entries": {}
